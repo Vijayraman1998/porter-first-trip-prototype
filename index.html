@@ -327,6 +327,7 @@ const $=s=>document.querySelector(s);
 const rs=n=>"₹"+n.toLocaleString("en-IN");
 const dec=()=>CAT.reduce((t,[,n,v])=>t+v*(S.qty[n]||0),0);
 const cnt=()=>Object.values(S.qty).reduce((a,b)=>a+b,0);
+const items=()=>{const n=cnt();return n+" item"+(n===1?"":"s");};
 const req=()=>Math.round(dec()*PACKING);
 const wt=()=>Math.round(dec()*DENSITY);
 const fits=v=>v.vol>=req()&&v.kg>=wt();
@@ -387,8 +388,9 @@ function screen(){
       <div class="presets">${PRESETS.map(p=>
         `<button class="preset" aria-pressed="${S.preset===p.k}" data-p="${p.k}"><b>${p.n}</b><span>${p.d}</span></button>`).join("")}</div>
       <div class="total"><div><div class="lab" style="font-size:10.5px;color:var(--ink-3)">${S.preset?"PRESET SELECTED":"YOUR LOAD"}</div>
-        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()?cnt()+" items"+(S.preset?" - tap another preset, or build your own list":""):"nothing yet"}</div></div>
-        <div class="v">${d} cu ft</div></div>`;
+        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()?items()+(S.preset?" - tap another preset, or build your own list":""):"nothing yet"}</div></div>
+        <div class="v">${d} cu ft</div></div>
+      <p style="margin:9px 0 0;font-size:11.5px"><a href="#" id="clear" style="color:var(--ink-3)">Clear the list</a></p>`;
     f.innerHTML=`<button class="cta" data-go="4">Build my list</button>
       <button class="cta ghost" data-go="6">Skip &mdash; I&rsquo;ll choose the vehicle myself</button>`;
   } else if(S.i===4){
@@ -398,7 +400,7 @@ function screen(){
           <div class="step"><button data-m="${nm}">&minus;</button><div class="q${q?" on":""}">${q}</div>
           <button data-a="${nm}">+</button></div></div>`;}).join("")}
       <div class="total"><div><div style="font-size:10.5px;color:var(--ink-3);letter-spacing:.04em">${S.preset?"PRESET SELECTED":"YOUR LOAD"}</div>
-        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()} items</div></div><div class="v">${d} cu ft</div></div>`;
+        <div style="font-size:11.5px;color:var(--ink-2)">${items()}</div></div><div class="v">${d} cu ft</div></div>`;
     f.innerHTML=`<button class="cta" data-go="5">Continue</button>`;
   } else if(S.i===5){
     b.innerHTML=`<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:9px">Who will load and unload?</div>
@@ -420,7 +422,7 @@ function screen(){
     b.innerHTML=`<div class="rec"><div class="top">
         <div><div class="veh">${v.n}</div><div class="sub">${v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
         <div class="pill ${over||util>88?"no":"ok"}">${fit}</div></div>
-        <div class="why">${d?`Your <b>${cnt()} items</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
+        <div class="why">${d?`Your <b>${items()}</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
           with the gaps real loading leaves.
           ${small?`A ${small.n} holds ~${small.vol} &mdash; ${!fits(small)?"it wouldn't fit in one trip ("+why(small)+")."
             :"that would also work if you want to save a little."}`:""}
@@ -445,8 +447,8 @@ function screen(){
         ? `<b>Nothing is declared, so nothing can be fixed.</b> A binding price is binding <i>because</i> the load
            was declared - with an empty list there is no declaration to hold Porter to. Go back and pick a preset.`
         : over
-        ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${cnt()} items need ${n} cu ft and the ${v.n} holds ~${v.vol}. Choose the ${a.n}, or book two trips and we&rsquo;ll price them together.`
-        : `&#10003; <b>${rs(total())} is what you pay.</b> Fixed for the ${cnt()} items you listed &mdash; no recalculation after the trip unless you add a stop or items on the day.`}</div>
+        ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${items()} need ${n} cu ft and the ${v.n} holds ~${v.vol}. Choose the ${a.n}, or book two trips and we&rsquo;ll price them together.`
+        : `&#10003; <b>${rs(total())} is what you pay.</b> Fixed for the ${items()} you listed &mdash; no recalculation after the trip unless you add a stop or items on the day.`}</div>
       <div class="next"><b style="font-size:12px">What happens next</b><ol>
         <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
         <li>${S.lab==="self"?"You load the vehicle yourself. The driver helps with items under 50 kg, up to 25 m, ground floor only."
@@ -464,7 +466,7 @@ function screen(){
         <div style="font-size:19px">&#9742;</div></div>
       <div class="regmatch">&#10003; Vehicle number matches your booking</div>
       <div class="field" style="margin-top:11px"><div class="lab">Accepted scope</div>
-        <div class="val" style="font-size:12.5px">${cnt()} items &middot; ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")} &middot; ${floorTxt()}</div></div>
+        <div class="val" style="font-size:12.5px">${items()} &middot; ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")} &middot; ${floorTxt()}</div></div>
       <div class="field"><div class="lab">Price</div><div class="val mono">${rs(total())} &mdash; fixed</div></div>
       <div style="font-size:12.5px;margin-top:13px">Share this OTP at drop</div>
       <div class="otp">${[0,1,2,3].map(i=>`<input maxlength="1" data-otp="${i}" value="${S.otp[i]||""}" inputmode="numeric" aria-label="OTP digit ${i+1}">`).join("")}</div>`;
@@ -475,11 +477,11 @@ function screen(){
       <div style="font-family:Archivo,sans-serif;font-size:19px;font-weight:700">Trip completed</div>
       <div style="font-size:12.5px;color:var(--ink-2);margin-top:5px">Verified with your OTP at 11:24</div></div>
       <div class="field"><div class="lab">You booked</div>
-        <div class="val" style="font-size:12.5px">${cur().n} for ${cnt()} items, ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")}</div></div>
+        <div class="val" style="font-size:12.5px">${cur().n} for ${items()}, ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")}</div></div>
       <div class="field"><div class="lab">You paid</div><div class="val mono">${rs(total())}</div></div>
       <div class="lock">&#10003; <b>The price you were quoted is the price you paid.</b></div>
       <div class="field" style="margin-top:11px"><div class="lab">Save this list?</div>
-        <div class="val" style="font-size:12.5px">Your ${cnt()} items are saved to your profile, so your next move starts almost done.</div></div>`;
+        <div class="val" style="font-size:12.5px">Your ${items()} are saved to your profile, so your next move starts almost done.</div></div>`;
     f.innerHTML=`<button class="cta" data-go="1">Start again</button>`;
   }
   if(S.i===5) accessNote();
@@ -496,12 +498,13 @@ function accessNote(){
 }
 function render(){rail();notes();screen();}
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-go],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v]");
+  const t=e.target.closest("[data-go],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v],#clear");
   if(!t) return;
   if(t.dataset.p){const p=PRESETS.find(x=>x.k===t.dataset.p);S.preset=p.k;S.qty={...p.items};S.veh=null;}
   if(t.dataset.r) S.room=t.dataset.r;
   if(t.dataset.a){S.qty[t.dataset.a]=(S.qty[t.dataset.a]||0)+1;S.preset=null;S.veh=null;}
   if(t.dataset.m){S.qty[t.dataset.m]=Math.max(0,(S.qty[t.dataset.m]||0)-1);S.preset=null;S.veh=null;}
+  if(t.id==="clear"){ e.preventDefault(); S.qty={}; S.preset=null; S.veh=null; }
   if(t.dataset.l) S.lab=t.dataset.l;
   if(t.dataset.v) S.veh=t.dataset.v;
   if(t.dataset.go) S.i=+t.dataset.go;
