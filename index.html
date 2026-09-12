@@ -431,7 +431,7 @@ function screen(){
             :"that would also work if you want to save a little."}`:""}
           The ${v.n} holds ~${v.vol}.`:"Nothing declared yet - go back to step 3."}
           <div class="bar ${over||util>88?"no":""}"><i style="width:${Math.min(100,util)}%"></i></div>
-          <div class="barlab"><span>${n} cu ft of ${v.vol} used</span><span>${util}%</span></div></div></div>
+          </div></div>
       <details class="alt" ${S.veh?"open":""}><summary>Change vehicle</summary>
         ${VEH.map(x=>`<button class="vrow" aria-pressed="${x.n===v.n}" data-v="${x.n}">
           <span>${x.n}<span class="cap"> &middot; ~${x.vol} cu ft, ${x.kg} kg</span></span>
