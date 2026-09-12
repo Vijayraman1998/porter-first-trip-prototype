@@ -281,12 +281,12 @@ const SCREENS=[
  {id:2,t:"Pickup & drop",kind:"exist",name:"Addresses",sub:"Unchanged, and a known drop-off point in its own right.",
   notes:["<b>Left alone deliberately.</b> Address entry is an evidenced drop - but it sits above the brief's 41% denominator and is a different problem with a different fix."],
   evid:"&ldquo;It first try to location in map and that&rsquo;s where it takes some random address initially and then becomes Harv to edit it&rdquo;<span>Kamal4porter, Google Play, 29 Aug 2026</span>"},
- {id:3,t:"What you're moving",kind:"new",name:"Load Builder - presets",sub:"The new step. Optional, skippable, ~15 seconds via a preset.",
+ {id:3,t:"Your load",kind:"new",name:"Load Builder - presets",sub:"The new step. Optional, skippable, ~15 seconds via a preset.",
   notes:["<b>Presets first, catalogue second.</b> Most first-timers are moving a recognisable unit or one object. Itemisation is the escape hatch, not the default - that is what keeps the median path near 15 seconds.",
    "<b>Skip is a text link, not a button.</b> Present and honest, and not competing for the primary action.",
    "<b>First-timers only.</b> A repeat or MSME user never sees this screen."],
   evid:"&ldquo;Select the vehicle based on how much stuff you have. Like if it&rsquo;s just a couple of bags or boxes, bike works&hellip;&rdquo; - the most-upvoted practical answer is a stranger supplying the rule the product doesn&rsquo;t.<span>Chandra Prakash, Quora, Mar 2026 &middot; 26 upvotes</span>"},
- {id:4,t:"What you're moving",kind:"new",name:"Load Builder - catalogue",sub:"Tap items by room. The running total is the point.",
+ {id:4,t:"Item list",kind:"new",name:"Load Builder - catalogue",sub:"Tap items by room. The running total is the point.",
   notes:["<b>Items are pictures and names, never dimensions.</b> A first-timer cannot estimate cubic feet - that is the entire premise. Porter does the conversion.",
    "<b>The running total is always visible.</b> It turns an abstract worry - will it fit? - into a number that moves as they tap. The user watches the answer form.",
    "<b>Every quantity is editable later.</b> The declaration is the object the rest of the flow depends on."],
@@ -320,7 +320,8 @@ const SCREENS=[
   evid:"&ldquo;Almost 20 notifications in a day. I will use the app when I have a need. Uninstalling due to the disturbance.&rdquo;<span>Lajeesh k, App Store, 3 Sep 2026</span>"}
 ];
 
-const S={i:3,qty:{...PRESETS[3].items},preset:"1bhk",room:"Bedroom",lab:"self",veh:null,otp:""};
+const S={i:1,qty:{...PRESETS[3].items},preset:"1bhk",room:"Bedroom",lab:"self",veh:null,otp:"",
+         floor:2,lift:"no",hours:"18",gate:"no"};
 const $=s=>document.querySelector(s);
 const rs=n=>"₹"+n.toLocaleString("en-IN");
 const dec=()=>CAT.reduce((t,[,n,v])=>t+v*(S.qty[n]||0),0);
@@ -332,7 +333,9 @@ const why=v=>{const a=req()-v.vol,b=wt()-v.kg;
   return a>0&&b>0?"over by "+a+" cu ft and "+b+" kg":a>0?"over volume by "+a+" cu ft":b>0?"over payload by "+b+" kg":"";};
 const auto=()=>VEH.find(fits)||VEH[VEH.length-1];
 const cur=()=>S.veh?VEH.find(v=>v.n===S.veh):auto();
-const stairs=()=>{const f=+($("#floor")?.value??2),l=($("#lift")?.value??"no")==="yes";return l||!f?0:f*60;};
+const stairs=()=>(S.lift==="yes"||!S.floor)?0:S.floor*60;
+const floorTxt=()=>S.floor?`${S.floor} ${S.floor>1?"floors":"floor"}, ${S.lift==="yes"?"lift":"no lift"}`
+                        :"ground floor";
 const total=()=>{const v=cur();return v.base+v.km*DIST+LAB.find(l=>l.k===S.lab).p+stairs();};
 
 function rail(){
@@ -404,10 +407,11 @@ function screen(){
       <div style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0">Getting in and out</div>
       <div class="two">
         <label class="f">Floor at pickup<select id="floor">${[0,1,2,3,4].map(i=>
-          `<option value="${i}" ${i===2?"selected":""}>${i?i+(i===1?"st":i===2?"nd":i===3?"rd":"th"):"Ground"}</option>`).join("")}</select></label>
-        <label class="f">Lift available<select id="lift"><option value="no" selected>No - stairs</option><option value="yes">Yes</option></select></label>
-        <label class="f">Society allows until<select id="hours"><option value="18" selected>6:00 pm</option><option value="20">8:00 pm</option><option value="none">No restriction</option></select></label>
-        <label class="f">Gate pass needed<select id="gate"><option value="no">No</option><option value="yes">Yes</option></select></label>
+          `<option value="${i}" ${i===S.floor?"selected":""}>${i?i+(i===1?"st":i===2?"nd":i===3?"rd":"th"):"Ground"}</option>`).join("")}</select></label>
+        <label class="f">Lift available<select id="lift"><option value="no" ${S.lift==="no"?"selected":""}>No - stairs</option><option value="yes" ${S.lift==="yes"?"selected":""}>Yes</option></select></label>
+        <label class="f">Society allows until<select id="hours">${[["18","6:00 pm"],["20","8:00 pm"],["none","No restriction"]].map(([v,l])=>
+          `<option value="${v}" ${S.hours===v?"selected":""}>${l}</option>`).join("")}</select></label>
+        <label class="f">Gate pass needed<select id="gate"><option value="no" ${S.gate==="no"?"selected":""}>No</option><option value="yes" ${S.gate==="yes"?"selected":""}>Yes</option></select></label>
       </div>
       <p style="font-size:11.5px;color:var(--ink-3);margin-top:10px" id="accn"></p>`;
     f.innerHTML=`<button class="cta" data-go="6">See my vehicle</button>`;
@@ -431,7 +435,7 @@ function screen(){
   } else if(S.i===7){
     const l=LAB.find(x=>x.k===S.lab), st=stairs(), lines=[[v.n+" base fare",v.base],["Distance &middot; "+DIST+" km",v.km*DIST]];
     if(l.p) lines.push([l.n.replace("+",""),l.p]);
-    if(st) lines.push(["Stairs &middot; 2 floors, no lift",st]);
+    if(st) lines.push(["Stairs &middot; "+floorTxt(),st]);
     b.innerHTML=`${lines.map(([k2,v2])=>`<div class="qrow"><span>${k2}</span><span>${rs(v2)}</span></div>`).join("")}
       <div class="qtot"><span style="font-size:12.5px">Total, fixed</span><b>${rs(total())}</b></div>
       <div class="lock ${over?"warn":""}">${over
@@ -452,7 +456,7 @@ function screen(){
         <div style="font-size:19px">&#9742;</div></div>
       <div class="regmatch">&#10003; Vehicle number matches your booking</div>
       <div class="field" style="margin-top:11px"><div class="lab">Accepted scope</div>
-        <div class="val" style="font-size:12.5px">${cnt()} items &middot; ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")} &middot; 2 floors, no lift</div></div>
+        <div class="val" style="font-size:12.5px">${cnt()} items &middot; ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")} &middot; ${floorTxt()}</div></div>
       <div class="field"><div class="lab">Price</div><div class="val mono">${rs(total())} &mdash; fixed</div></div>
       <div style="font-size:12.5px;margin-top:13px">Share this OTP at drop</div>
       <div class="otp">${[0,1,2,3].map(i=>`<input maxlength="1" data-otp="${i}" value="${S.otp[i]||""}" inputmode="numeric" aria-label="OTP digit ${i+1}">`).join("")}</div>`;
@@ -473,7 +477,7 @@ function screen(){
 }
 function accessNote(){
   const el=$("#accn"); if(!el) return;
-  const f=+$("#floor").value, l=$("#lift").value==="yes", h=$("#hours").value, g=$("#gate").value==="yes";
+  const f=S.floor, l=S.lift==="yes", h=S.hours, g=S.gate==="yes";
   const bits=[];
   if(f>0&&!l) bits.push(`<b>${f} ${f>1?"floors":"floor"} of stairs</b> is on the job card before the driver accepts it`);
   if(f>=3&&!l&&S.lab!=="h2") bits.push(`at that floor without a lift we&rsquo;d suggest <b>2 helpers</b>`);
@@ -494,7 +498,11 @@ document.addEventListener("click",e=>{
   if(t.dataset.go) S.i=+t.dataset.go;
   render();
 });
-document.addEventListener("change",e=>{if(["floor","lift","hours","gate"].includes(e.target.id)) accessNote();});
+document.addEventListener("change",e=>{
+  if(!["floor","lift","hours","gate"].includes(e.target.id)) return;
+  S[e.target.id] = e.target.id==="floor" ? +e.target.value : e.target.value;
+  accessNote();
+});
 document.addEventListener("input",e=>{
   const i=e.target.dataset?.otp; if(i===undefined) return;
   const a=S.otp.padEnd(4," ").split(""); a[+i]=e.target.value.replace(/\D/g,"")||" ";
