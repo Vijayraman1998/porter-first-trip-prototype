@@ -306,7 +306,7 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-3);line-height:1.6;max-wid
 const CAT = [
   ["Bedroom","Double bed + mattress",45],["Bedroom","Single bed",25],["Bedroom","Mattress only",22],
   ["Bedroom","Wardrobe (2-door)",50],["Bedroom","Bedside table",6],
-  ["Living","Sofa (3-seater)",50],["Living","Sofa (2-seater)",32],["Living","TV up to 55\"",8],
+  ["Living","Sofa (3-seater)",50],["Living","Sofa (2-seater)",32],["Living","TV up to 55 inch",8],
   ["Living","Bookshelf",20],["Living","Centre table",10],
   ["Kitchen","Fridge (double door)",25],["Kitchen","Fridge (single door)",15],
   ["Kitchen","Washing machine",12],["Kitchen","Microwave / oven",4],["Kitchen","Gas stove + cylinder",5],
@@ -319,8 +319,8 @@ const PRESETS = [
   {k:"single", n:"Single item", d:"one large thing", items:{"Fridge (double door)":1}},
   {k:"pg",     n:"PG / hostel", d:"~67 cu ft", items:{"Single bed":1,"Mattress only":1,"Carton (medium)":4,"Suitcase":2}},
   {k:"1rk",    n:"Studio / 1 RK", d:"~138 cu ft", items:{"Single bed":1,"Mattress only":1,"Wardrobe (2-door)":1,"Fridge (single door)":1,"Carton (medium)":6,"Suitcase":2}},
-  {k:"1bhk",   n:"1 BHK", d:"~204 cu ft", items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Carton (medium)":8,"Suitcase":2}},
-  {k:"2bhk",   n:"2 BHK", d:"~379 cu ft", items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}
+  {k:"1bhk",   n:"1 BHK", d:"~204 cu ft", items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55 inch":1,"Carton (medium)":8,"Suitcase":2}},
+  {k:"2bhk",   n:"2 BHK", d:"~379 cu ft", items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55 inch":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}
 ];
 const VEH = [
   {n:"3-wheeler",     vol:60,  kg:500,  base:160, perKm:12},
@@ -377,8 +377,8 @@ function renderItems(){
   $("#items").innerHTML = CAT.filter(([r]) => r === S.room).map(([,n,v]) => {
     const q = S.qty[n]||0;
     return `<div class="item"><div><div class="nm">${n}</div><div class="cu">${v} cu ft</div></div>
-      <div class="stepper"><button data-m="${n}">&minus;</button>
-      <div class="q${q?" on":""}">${q}</div><button data-a="${n}">+</button></div><div></div></div>`;
+      <div class="stepper"><button data-m="${n.replace(/"/g,'&quot;')}">&minus;</button>
+      <div class="q${q?" on":""}">${q}</div><button data-a="${n.replace(/"/g,'&quot;')}">+</button></div><div></div></div>`;
   }).join("");
 }
 function renderLabour(){

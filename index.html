@@ -253,7 +253,7 @@ footer{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.6;max-w
 <script>
 const CAT=[["Bedroom","Double bed + mattress",45],["Bedroom","Single bed",25],["Bedroom","Mattress only",22],
 ["Bedroom","Wardrobe (2-door)",50],["Bedroom","Bedside table",6],["Living","Sofa (3-seater)",50],
-["Living","Sofa (2-seater)",32],["Living","TV up to 55\"",8],["Living","Bookshelf",20],["Living","Centre table",10],
+["Living","Sofa (2-seater)",32],["Living","TV up to 55 inch",8],["Living","Bookshelf",20],["Living","Centre table",10],
 ["Kitchen","Fridge (double door)",25],["Kitchen","Fridge (single door)",15],["Kitchen","Washing machine",12],
 ["Kitchen","Microwave / oven",4],["Kitchen","Gas stove + cylinder",5],["Kitchen","Dining table + 4 chairs",40],
 ["Other","Carton (medium)",3],["Other","Suitcase",4],["Other","Study table",15],["Other","Office chair",8],
@@ -263,8 +263,8 @@ const PRESETS=[
  {k:"single",n:"Single item",d:"one large thing",items:{"Fridge (double door)":1}},
  {k:"pg",n:"PG / hostel",d:"~67 cu ft",items:{"Single bed":1,"Mattress only":1,"Carton (medium)":4,"Suitcase":2}},
  {k:"1rk",n:"Studio / 1 RK",d:"~138 cu ft",items:{"Single bed":1,"Mattress only":1,"Wardrobe (2-door)":1,"Fridge (single door)":1,"Carton (medium)":6,"Suitcase":2}},
- {k:"1bhk",n:"1 BHK",d:"~204 cu ft",items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Carton (medium)":8,"Suitcase":2}},
- {k:"2bhk",n:"2 BHK",d:"~379 cu ft",items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}];
+ {k:"1bhk",n:"1 BHK",d:"~204 cu ft",items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55 inch":1,"Carton (medium)":8,"Suitcase":2}},
+ {k:"2bhk",n:"2 BHK",d:"~379 cu ft",items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55 inch":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}];
 const VEH=[{n:"3-wheeler",vol:60,kg:500,base:160,km:12},{n:"Tata Ace",vol:120,kg:750,base:210,km:15},
 {n:"Pickup 8ft",vol:200,kg:1250,base:300,km:19},{n:"Tata 407",vol:300,kg:2500,base:625,km:26},
 {n:"Canter 14ft",vol:500,kg:3500,base:1120,km:34}];
@@ -397,8 +397,8 @@ function screen(){
     b.innerHTML=`<div class="rooms">${ROOMS.map(r=>`<button aria-pressed="${S.room===r}" data-r="${r}">${r}</button>`).join("")}</div>
       ${CAT.filter(([r])=>r===S.room).map(([,nm,vv])=>{const q=S.qty[nm]||0;
         return `<div class="row"><div><div class="nm">${nm}</div><div class="cu">${vv} cu ft</div></div>
-          <div class="step"><button data-m="${nm}">&minus;</button><div class="q${q?" on":""}">${q}</div>
-          <button data-a="${nm}">+</button></div></div>`;}).join("")}
+          <div class="step"><button data-m="${nm.replace(/"/g,'&quot;')}">&minus;</button><div class="q${q?" on":""}">${q}</div>
+          <button data-a="${nm.replace(/"/g,'&quot;')}">+</button></div></div>`;}).join("")}
       <div class="total"><div><div style="font-size:10.5px;color:var(--ink-3);letter-spacing:.04em">${S.preset?"PRESET SELECTED":"YOUR LOAD"}</div>
         <div style="font-size:11.5px;color:var(--ink-2)">${items()}</div></div><div class="v">${d} cu ft</div></div>`;
     f.innerHTML=`<button class="cta" data-go="5">Continue</button>`;
