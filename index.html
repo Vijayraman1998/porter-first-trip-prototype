@@ -284,7 +284,8 @@ const SCREENS=[
  {id:3,t:"Your load",kind:"new",name:"Load Builder - presets",sub:"The new step. Optional, skippable, ~15 seconds via a preset.",
   notes:["<b>Presets first, catalogue second.</b> Most first-timers are moving a recognisable unit or one object. Itemisation is the escape hatch, not the default - that is what keeps the median path near 15 seconds.",
    "<b>Skip is a text link, not a button.</b> Present and honest, and not competing for the primary action.",
-   "<b>First-timers only.</b> A repeat or MSME user never sees this screen."],
+   "<b>First-timers only.</b> A repeat or MSME user never sees this screen.",
+   "<b>The demo opens on the 1 BHK preset</b> so the tool shows what it does on first look. A real first-timer arrives here empty - tap another preset, or Clear and build a list, to see that state."],
   evid:"&ldquo;Select the vehicle based on how much stuff you have. Like if it&rsquo;s just a couple of bags or boxes, bike works&hellip;&rdquo; - the most-upvoted practical answer is a stranger supplying the rule the product doesn&rsquo;t.<span>Chandra Prakash, Quora, Mar 2026 &middot; 26 upvotes</span>"},
  {id:4,t:"Item list",kind:"new",name:"Load Builder - catalogue",sub:"Tap items by room. The running total is the point.",
   notes:["<b>Items are pictures and names, never dimensions.</b> A first-timer cannot estimate cubic feet - that is the entire premise. Porter does the conversion.",
@@ -385,8 +386,8 @@ function screen(){
         Tell us roughly what you&rsquo;re moving and we&rsquo;ll pick the right vehicle - and hold the price.</div>
       <div class="presets">${PRESETS.map(p=>
         `<button class="preset" aria-pressed="${S.preset===p.k}" data-p="${p.k}"><b>${p.n}</b><span>${p.d}</span></button>`).join("")}</div>
-      <div class="total"><div><div class="lab" style="font-size:10.5px;color:var(--ink-3)">DECLARED</div>
-        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()?cnt()+" items":"nothing yet"}</div></div>
+      <div class="total"><div><div class="lab" style="font-size:10.5px;color:var(--ink-3)">${S.preset?"PRESET SELECTED":"YOUR LOAD"}</div>
+        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()?cnt()+" items"+(S.preset?" - tap another preset, or build your own list":""):"nothing yet"}</div></div>
         <div class="v">${d} cu ft</div></div>`;
     f.innerHTML=`<button class="cta" data-go="4">Build my list</button>
       <button class="cta ghost" data-go="6">Skip &mdash; I&rsquo;ll choose the vehicle myself</button>`;
@@ -396,7 +397,7 @@ function screen(){
         return `<div class="row"><div><div class="nm">${nm}</div><div class="cu">${vv} cu ft</div></div>
           <div class="step"><button data-m="${nm}">&minus;</button><div class="q${q?" on":""}">${q}</div>
           <button data-a="${nm}">+</button></div></div>`;}).join("")}
-      <div class="total"><div><div style="font-size:10.5px;color:var(--ink-3);letter-spacing:.04em">DECLARED</div>
+      <div class="total"><div><div style="font-size:10.5px;color:var(--ink-3);letter-spacing:.04em">${S.preset?"PRESET SELECTED":"YOUR LOAD"}</div>
         <div style="font-size:11.5px;color:var(--ink-2)">${cnt()} items</div></div><div class="v">${d} cu ft</div></div>`;
     f.innerHTML=`<button class="cta" data-go="5">Continue</button>`;
   } else if(S.i===5){
