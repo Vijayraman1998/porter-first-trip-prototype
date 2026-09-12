@@ -80,6 +80,8 @@ header p{margin:7px 0 0;color:var(--ink-2);font-size:14px;max-width:64ch}
 .svc button{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:14px 8px;
   font:inherit;font-size:11.5px;color:var(--ink);cursor:pointer;text-align:center}
 .svc button[aria-pressed="true"]{border-color:var(--porter);background:var(--porter-wash);color:var(--porter-ink)}
+.svc button[disabled]{opacity:.5;cursor:not-allowed;border-style:dashed}
+.svc .oos{display:block;font-size:9px;letter-spacing:.03em;color:var(--ink-3);margin-top:4px;text-transform:uppercase}
 .svc .ic{font-size:21px;display:block;margin-bottom:5px}
 
 .field{border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:9px;background:var(--card-2)}
@@ -273,7 +275,8 @@ const DIST=9, DENSITY=3.2, PACKING=1.25;
 
 const SCREENS=[
  {id:1,t:"Home",kind:"exist",name:"Service picker",sub:"Unchanged. The flow joins Porter where it already starts.",
-  notes:["<b>Nothing new here.</b> Showing it makes the join visible - this is an insertion into the existing funnel, not a replacement for it."],
+  notes:["<b>Nothing new here.</b> Showing it makes the join visible - this is an insertion into the existing funnel, not a replacement for it.",
+   "<b>Only Truck is live.</b> The brief scopes this to consumer on-demand goods transport, and puts a Packers &amp; Movers redesign explicitly out of scope. The other two services are drawn because the real app draws them, and left inactive so the boundary is visible rather than assumed."],
   evid:"Porter's own site offers Truck, Two Wheeler and Packers &amp; Movers, and a first-timer moving a flat has to guess which one they are.<span>porter.in, Sept 2026</span>"},
  {id:2,t:"Pickup & drop",kind:"exist",name:"Addresses",sub:"Unchanged, and a known drop-off point in its own right.",
   notes:["<b>Left alone deliberately.</b> Address entry is an evidenced drop - but it sits above the brief's 41% denominator and is a different problem with a different fix."],
@@ -317,7 +320,7 @@ const SCREENS=[
   evid:"&ldquo;Almost 20 notifications in a day. I will use the app when I have a need. Uninstalling due to the disturbance.&rdquo;<span>Lajeesh k, App Store, 3 Sep 2026</span>"}
 ];
 
-const S={i:3,qty:{...PRESETS[3].items},preset:"1bhk",room:"Bedroom",lab:"self",veh:null,svc:"truck",otp:""};
+const S={i:3,qty:{...PRESETS[3].items},preset:"1bhk",room:"Bedroom",lab:"self",veh:null,otp:""};
 const $=s=>document.querySelector(s);
 const rs=n=>"₹"+n.toLocaleString("en-IN");
 const dec=()=>CAT.reduce((t,[,n,v])=>t+v*(S.qty[n]||0),0);
@@ -354,10 +357,14 @@ function screen(){
   if(S.i===1){
     b.innerHTML=`<div style="font-size:13px;color:var(--ink-2)">What are you sending today?</div>
       <div class="svc">
-        <button aria-pressed="${S.svc==='truck'}" data-svc="truck"><span class="ic">&#128666;</span>Truck</button>
-        <button aria-pressed="${S.svc==='2w'}" data-svc="2w"><span class="ic">&#127949;</span>Two Wheeler</button>
-        <button aria-pressed="${S.svc==='pm'}" data-svc="pm"><span class="ic">&#128230;</span>Packers &amp; Movers</button>
+        <button aria-pressed="true" data-svc="truck"><span class="ic">&#128666;</span>Truck</button>
+        <button disabled aria-pressed="false" title="Out of scope for this concept"><span class="ic">&#127949;</span>Two Wheeler<span class="oos">out of scope</span></button>
+        <button disabled aria-pressed="false" title="Out of scope for this concept"><span class="ic">&#128230;</span>Packers &amp; Movers<span class="oos">out of scope</span></button>
       </div>
+      <p style="font-size:11px;color:var(--ink-3);margin:10px 0 0;line-height:1.45">
+        This concept covers <b>on-demand Truck</b> only &mdash; the brief scopes it to consumer on-demand goods
+        transport. Two&nbsp;Wheeler (parcels) and Packers&nbsp;&amp;&nbsp;Movers are shown because the real app shows
+        them, and left inactive because a Packers redesign is explicitly out of scope.</p>
       <div style="margin-top:16px;font-size:12px;color:var(--ink-3)">Recent</div>
       <div class="field" style="margin-top:6px"><div class="val" style="font-size:12.5px;color:var(--ink-3)">No previous trips</div></div>`;
     f.innerHTML=`<button class="cta" data-go="2">Continue</button>`;
@@ -476,9 +483,8 @@ function accessNote(){
 }
 function render(){rail();notes();screen();}
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-go],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v],[data-svc]");
+  const t=e.target.closest("[data-go],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v]");
   if(!t) return;
-  if(t.dataset.svc) S.svc=t.dataset.svc;
   if(t.dataset.p){const p=PRESETS.find(x=>x.k===t.dataset.p);S.preset=p.k;S.qty={...p.items};S.veh=null;}
   if(t.dataset.r) S.room=t.dataset.r;
   if(t.dataset.a){S.qty[t.dataset.a]=(S.qty[t.dataset.a]||0)+1;S.preset=null;S.veh=null;}
