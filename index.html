@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent product-management capstone concept. Not affiliated with Porter.">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Porter First-Trip Flow</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#0b1226; --ink-2:#44506b; --ink-3:#6f7c96;
+  --ground:#eceff6; --card:#fff; --card-2:#f5f7fc; --line:#dde3ee;
+  --porter:#1a4fd6; --porter-ink:#0e2f8f; --porter-wash:#e8eeff; --navy:#0b1b3a;
+  --kraft:#b26f28; --kraft-wash:#fcf1e3;
+  --good:#0d7a55; --good-wash:#e3f5ee; --warn:#a4560b; --warn-wash:#fdf0e1; --crit:#b3241a;
+  --shadow:0 1px 2px rgba(11,18,38,.06), 0 10px 30px -14px rgba(11,18,38,.25);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#e9edfa; --ink-2:#aab6cd; --ink-3:#7f8ca6;
+  --ground:#080d1a; --card:#121a2c; --card-2:#1a2336; --line:#28324c;
+  --porter:#7c9dff; --porter-ink:#c4d3ff; --porter-wash:#182449; --navy:#0d1730;
+  --kraft:#dfa363; --kraft-wash:#2c2317;
+  --good:#4fc99e; --good-wash:#0f2f20; --warn:#dfa55d; --warn-wash:#2d2212; --crit:#f28b82;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 34px -16px rgba(0,0,0,.8);
+}}
+:root[data-theme="dark"]{
+  --ink:#e9edfa; --ink-2:#aab6cd; --ink-3:#7f8ca6;
+  --ground:#080d1a; --card:#121a2c; --card-2:#1a2336; --line:#28324c;
+  --porter:#7c9dff; --porter-ink:#c4d3ff; --porter-wash:#182449; --navy:#0d1730;
+  --kraft:#dfa363; --kraft-wash:#2c2317;
+  --good:#4fc99e; --good-wash:#0f2f20; --warn:#dfa55d; --warn-wash:#2d2212; --crit:#f28b82;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 34px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);margin:0;padding:26px 20px 60px;
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+header h1{font-size:29px;font-weight:800;letter-spacing:-.02em;margin-top:3px}
+header p{margin:7px 0 0;color:var(--ink-2);font-size:14px;max-width:64ch}
+.tag{display:inline-flex;gap:7px;align-items:center;background:var(--porter-wash);color:var(--porter-ink);
+  border:1px solid color-mix(in srgb,var(--porter) 25%,transparent);padding:5px 11px;border-radius:999px;
+  font-size:11.5px;font-weight:600}
+
+/* screen rail */
+.rail{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
+.rail button{border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:999px;
+  padding:6px 12px;font:inherit;font-size:12px;cursor:pointer;display:flex;gap:7px;align-items:center}
+.rail button .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3)}
+.rail button[aria-current="true"]{background:var(--porter);border-color:var(--porter);color:#fff}
+.rail button[aria-current="true"] .n{color:#dbe4ff}
+.rail button.exist{border-style:dashed}
+.rail button:focus-visible{outline:2px solid var(--porter);outline-offset:2px}
+
+.stage{display:grid;grid-template-columns:390px minmax(0,1fr);gap:26px;align-items:start}
+@media(max-width:860px){.stage{grid-template-columns:1fr}}
+
+/* phone */
+.phone{background:var(--navy);border-radius:34px;padding:11px;box-shadow:var(--shadow);position:sticky;top:22px}
+.screen{background:var(--card);border-radius:25px;overflow:hidden;height:660px;display:flex;flex-direction:column}
+.statusbar{background:var(--porter);color:#fff;padding:9px 16px 8px;display:flex;justify-content:space-between;
+  align-items:center;font-size:11px}
+.statusbar b{font-family:Archivo,sans-serif;font-size:14px;letter-spacing:.01em}
+.appbar{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.appbar .back{color:var(--ink-3);font-size:17px}
+.appbar h2{font-size:15px;font-weight:600;font-family:"IBM Plex Sans",sans-serif}
+.body{padding:14px 16px;overflow-y:auto;flex:1}
+.foot{padding:12px 16px 16px;border-top:1px solid var(--line);background:var(--card)}
+.cta{width:100%;background:var(--porter);color:#fff;border:0;border-radius:11px;padding:13px;
+  font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.cta.ghost{background:transparent;color:var(--ink-3);font-weight:500;font-size:12.5px;padding:8px}
+.cta:disabled{opacity:.45}
+
+.svc{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
+.svc button{background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:14px 8px;
+  font:inherit;font-size:11.5px;color:var(--ink);cursor:pointer;text-align:center}
+.svc button[aria-pressed="true"]{border-color:var(--porter);background:var(--porter-wash);color:var(--porter-ink)}
+.svc .ic{font-size:21px;display:block;margin-bottom:5px}
+
+.field{border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:9px;background:var(--card-2)}
+.field .lab{font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.field .val{font-size:13.5px;margin-top:2px}
+.dot{width:8px;height:8px;border-radius:99px;display:inline-block;margin-right:7px}
+
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.preset{background:var(--card-2);border:1px solid var(--line);border-radius:11px;padding:11px;cursor:pointer;
+  text-align:left;font:inherit;color:var(--ink)}
+.preset[aria-pressed="true"]{border-color:var(--porter);background:var(--porter-wash);color:var(--porter-ink)}
+.preset b{display:block;font-size:13px}
+.preset span{font-size:11px;color:var(--ink-3)}
+.preset[aria-pressed="true"] span{color:var(--porter-ink);opacity:.75}
+
+.rooms{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0 8px}
+.rooms button{border:1px solid var(--line);background:none;border-radius:99px;padding:4px 11px;
+  font:inherit;font-size:11.5px;color:var(--ink-2);cursor:pointer}
+.rooms button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .nm{font-size:13px}
+.row .cu{font-size:11px;color:var(--ink-3)}
+.step{display:flex;align-items:center;gap:3px}
+.step button{width:25px;height:25px;border-radius:7px;border:1px solid var(--line);background:var(--card-2);
+  color:var(--ink);font:inherit;font-size:14px;line-height:1;cursor:pointer}
+.step .q{width:24px;text-align:center;font-size:12.5px}
+.step .q.on{color:var(--kraft);font-weight:600}
+
+.total{display:flex;justify-content:space-between;align-items:baseline;background:var(--kraft-wash);
+  border:1px solid color-mix(in srgb,var(--kraft) 30%,transparent);border-radius:10px;padding:9px 12px;margin-top:12px}
+.total .v{font-family:"IBM Plex Mono",monospace;font-size:19px;color:var(--kraft)}
+
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;border:1px solid var(--line);
+  border-radius:11px;padding:11px;background:var(--card-2);cursor:pointer;margin-bottom:7px}
+.opt[aria-checked="true"]{border-color:var(--porter);background:var(--porter-wash)}
+.opt .rd{width:15px;height:15px;border-radius:99px;border:2px solid var(--ink-3);margin-top:2px}
+.opt[aria-checked="true"] .rd{border-color:var(--porter);background:radial-gradient(circle,var(--porter) 0 3.5px,transparent 4.5px)}
+.opt b{font-size:12.5px;display:block}
+.opt small{font-size:11px;color:var(--ink-2);display:block;margin-top:2px}
+.opt .pr{font-family:"IBM Plex Mono",monospace;font-size:12px;white-space:nowrap}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--ink-2);font-weight:500}
+select{font:inherit;font-size:12.5px;padding:7px 8px;border-radius:9px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink)}
+select:focus-visible{outline:2px solid var(--porter);outline-offset:1px}
+
+.rec{border:1px solid color-mix(in srgb,var(--porter) 32%,transparent);border-radius:12px;overflow:hidden}
+.rec .top{background:var(--porter-wash);padding:12px 13px;display:flex;justify-content:space-between;gap:10px}
+.rec .veh{font-family:Archivo,sans-serif;font-size:18px;font-weight:700;color:var(--porter-ink)}
+.rec .sub{font-size:11px;color:var(--ink-2);margin-top:1px}
+.pill{padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600;height:fit-content;white-space:nowrap}
+.pill.ok{background:var(--good-wash);color:var(--good)}
+.pill.no{background:var(--warn-wash);color:var(--warn)}
+.rec .why{padding:11px 13px;font-size:12px;color:var(--ink-2);border-top:1px solid var(--line);background:var(--card)}
+.bar{height:8px;border-radius:99px;background:var(--card-2);border:1px solid var(--line);overflow:hidden;margin:9px 0 4px}
+.bar>i{display:block;height:100%;background:var(--porter)}
+.bar.no>i{background:var(--warn)}
+.barlab{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-3)}
+details.alt{margin-top:10px}
+details.alt summary{cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;color:var(--porter-ink)}
+details.alt summary::-webkit-details-marker{display:none}
+details.alt summary::before{content:"v  "}
+details.alt[open] summary::before{content:"^  "}
+.vrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;width:100%;
+  border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:var(--card-2);margin-top:5px;
+  font:inherit;font-size:12px;color:var(--ink);cursor:pointer;text-align:left}
+.vrow[aria-pressed="true"]{border-color:var(--ink);background:var(--card)}
+.vrow .cap{font-size:10.5px;color:var(--ink-3)}
+.vrow .bad{font-size:10.5px;color:var(--crit)}
+
+.qrow{display:flex;justify-content:space-between;font-size:12.5px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.qrow span:last-child{font-family:"IBM Plex Mono",monospace}
+.qtot{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px;padding-top:10px;border-top:2px solid var(--ink)}
+.qtot b{font-family:Archivo,sans-serif;font-size:23px;font-weight:800}
+.lock{margin-top:10px;background:var(--good-wash);color:var(--good);border-radius:9px;padding:9px 11px;font-size:11.5px;font-weight:500}
+.lock.warn{background:var(--warn-wash);color:var(--warn)}
+.next{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:11px;background:var(--card-2)}
+.next ol{margin:6px 0 0;padding-left:17px;font-size:11.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px}
+
+.map{height:150px;border-radius:11px;background:
+  repeating-linear-gradient(45deg,var(--card-2) 0 12px,transparent 12px 24px),var(--porter-wash);
+  border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-3);font-size:11.5px}
+.drv{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:11px;margin-top:11px;background:var(--card-2)}
+.avatar{width:38px;height:38px;border-radius:99px;background:var(--porter);color:#fff;display:grid;place-items:center;
+  font-family:Archivo,sans-serif;font-weight:700;font-size:15px}
+.regmatch{margin-top:9px;background:var(--good-wash);color:var(--good);border-radius:9px;padding:8px 10px;font-size:11.5px;font-weight:600}
+.otp{display:flex;gap:7px;margin-top:9px}
+.otp input{width:38px;height:44px;text-align:center;font:inherit;font-size:17px;border:1px solid var(--line);
+  border-radius:9px;background:var(--card);color:var(--ink);font-family:"IBM Plex Mono",monospace}
+.otp input:focus-visible{outline:2px solid var(--porter);outline-offset:1px}
+.done{text-align:center;padding:22px 6px}
+.done .tick{width:54px;height:54px;border-radius:99px;background:var(--good-wash);color:var(--good);
+  display:grid;place-items:center;font-size:26px;margin:0 auto 12px}
+
+/* annotation panel */
+.notes{position:sticky;top:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:17px 19px}
+.card+.card{margin-top:16px}
+.card h3{font-size:16px;font-weight:700;margin-bottom:3px}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 8px;border-radius:5px;margin-bottom:9px}
+.badge.new{background:var(--porter-wash);color:var(--porter-ink)}
+.badge.exist{background:var(--card-2);color:var(--ink-3);border:1px solid var(--line)}
+.notes ol{margin:11px 0 0;padding-left:19px;display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--ink-2)}
+.notes ol b{color:var(--ink)}
+.evid{margin-top:13px;padding:10px 12px;border-left:3px solid var(--porter);background:var(--card-2);
+  font-size:12px;color:var(--ink-2);font-style:italic;border-radius:0 8px 8px 0}
+.evid span{display:block;font-style:normal;font-size:10.5px;color:var(--ink-3);margin-top:4px}
+footer{margin-top:26px;font-size:11.5px;color:var(--ink-3);line-height:1.6;max-width:82ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <div>
+    <div class="eyebrow">Porter capstone &middot; Step 4 prototype</div>
+    <h1>First-trip flow</h1>
+    <p>The complete journey a first-time customer walks, with the three new screens in place. Six new screens plus
+       three from the existing experience, so the join is visible. Everything is live &mdash; change the load and the
+       recommendation, the reasoning and the price all move with it.</p>
+  </div>
+  <div class="tag">Independent concept &middot; not affiliated with Porter</div>
+</header>
+
+<div class="rail" id="rail"></div>
+
+<div class="stage">
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar"><b>PORTER&deg;</b><span id="sbCity">Bengaluru &middot; 9:41</span></div>
+      <div class="appbar"><span class="back" id="back">&#8249;</span><h2 id="ttl"></h2></div>
+      <div class="body" id="scr"></div>
+      <div class="foot" id="foot"></div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="card">
+      <span class="badge" id="kind"></span>
+      <h3 id="nTitle"></h3>
+      <p style="margin:4px 0 0;color:var(--ink-2);font-size:13px" id="nSub"></p>
+      <ol id="nList"></ol>
+      <div class="evid" id="nEvid"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Grounding</div>
+      <p style="font-size:12.5px;color:var(--ink-2);margin:7px 0 0">
+        Porter's own FAQ describes the booking as: choose service &rarr; pick-up and drop &rarr; extra stops &rarr;
+        <b>&ldquo;choose the most appropriate vehicle type as per your requirements&rdquo;</b> &rarr; select goods type
+        &rarr; payment &rarr; book. Step four is where a first-timer is left alone, and its own website lists trucks by
+        weight only &mdash; <span class="mono">500 kg</span>, <span class="mono">750 kg</span> &mdash; with no volume
+        anywhere. This flow inserts the missing step before it.</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Independent capstone exercise for the Airtribe Product Management Launchpad. Not affiliated with, endorsed by or
+  built for Porter / SmartShift Logistics Solutions. A concept recreation, not Porter's software: no Porter code,
+  assets or fonts are used. Vehicle capacities, item volumes and fare components are modelled illustrations, not
+  Porter's published rates.
+</footer>
+</div>
+
+<script>
+const CAT=[["Bedroom","Double bed + mattress",45],["Bedroom","Single bed",25],["Bedroom","Mattress only",22],
+["Bedroom","Wardrobe (2-door)",50],["Bedroom","Bedside table",6],["Living","Sofa (3-seater)",50],
+["Living","Sofa (2-seater)",32],["Living","TV up to 55\"",8],["Living","Bookshelf",20],["Living","Centre table",10],
+["Kitchen","Fridge (double door)",25],["Kitchen","Fridge (single door)",15],["Kitchen","Washing machine",12],
+["Kitchen","Microwave / oven",4],["Kitchen","Gas stove + cylinder",5],["Kitchen","Dining table + 4 chairs",40],
+["Other","Carton (medium)",3],["Other","Suitcase",4],["Other","Study table",15],["Other","Office chair",8],
+["Other","AC (split unit)",10],["Other","Cycle",12]];
+const ROOMS=["Bedroom","Living","Kitchen","Other"];
+const PRESETS=[
+ {k:"single",n:"Single item",d:"one large thing",items:{"Fridge (double door)":1}},
+ {k:"pg",n:"PG / hostel",d:"~67 cu ft",items:{"Single bed":1,"Mattress only":1,"Carton (medium)":4,"Suitcase":2}},
+ {k:"1rk",n:"Studio / 1 RK",d:"~138 cu ft",items:{"Single bed":1,"Mattress only":1,"Wardrobe (2-door)":1,"Fridge (single door)":1,"Carton (medium)":6,"Suitcase":2}},
+ {k:"1bhk",n:"1 BHK",d:"~204 cu ft",items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Carton (medium)":8,"Suitcase":2}},
+ {k:"2bhk",n:"2 BHK",d:"~379 cu ft",items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}];
+const VEH=[{n:"3-wheeler",vol:60,kg:500,base:160,km:12},{n:"Tata Ace",vol:120,kg:750,base:210,km:15},
+{n:"Pickup 8ft",vol:200,kg:1250,base:300,km:19},{n:"Tata 407",vol:300,kg:2500,base:625,km:26},
+{n:"Canter 14ft",vol:500,kg:3500,base:1120,km:34}];
+const LAB=[{k:"self",n:"I'll load it myself",d:"Driver helps with items under 50 kg, up to 25 m, ground floor only.",p:0},
+{k:"h1",n:"+1 helper",d:"One trained loader, carries up and down stairs.",p:350},
+{k:"h2",n:"+2 helpers",d:"Two loaders. For a full flat, or anything above the 2nd floor.",p:650}];
+const DIST=9, DENSITY=3.2, PACKING=1.25;
+
+const SCREENS=[
+ {id:1,t:"Home",kind:"exist",name:"Service picker",sub:"Unchanged. The flow joins Porter where it already starts.",
+  notes:["<b>Nothing new here.</b> Showing it makes the join visible - this is an insertion into the existing funnel, not a replacement for it."],
+  evid:"Porter's own site offers Truck, Two Wheeler and Packers &amp; Movers, and a first-timer moving a flat has to guess which one they are.<span>porter.in, Sept 2026</span>"},
+ {id:2,t:"Pickup & drop",kind:"exist",name:"Addresses",sub:"Unchanged, and a known drop-off point in its own right.",
+  notes:["<b>Left alone deliberately.</b> Address entry is an evidenced drop - but it sits above the brief's 41% denominator and is a different problem with a different fix."],
+  evid:"&ldquo;It first try to location in map and that&rsquo;s where it takes some random address initially and then becomes Harv to edit it&rdquo;<span>Kamal4porter, Google Play, 29 Aug 2026</span>"},
+ {id:3,t:"What you're moving",kind:"new",name:"Load Builder - presets",sub:"The new step. Optional, skippable, ~15 seconds via a preset.",
+  notes:["<b>Presets first, catalogue second.</b> Most first-timers are moving a recognisable unit or one object. Itemisation is the escape hatch, not the default - that is what keeps the median path near 15 seconds.",
+   "<b>Skip is a text link, not a button.</b> Present and honest, and not competing for the primary action.",
+   "<b>First-timers only.</b> A repeat or MSME user never sees this screen."],
+  evid:"&ldquo;Select the vehicle based on how much stuff you have. Like if it&rsquo;s just a couple of bags or boxes, bike works&hellip;&rdquo; - the most-upvoted practical answer is a stranger supplying the rule the product doesn&rsquo;t.<span>Chandra Prakash, Quora, Mar 2026 &middot; 26 upvotes</span>"},
+ {id:4,t:"What you're moving",kind:"new",name:"Load Builder - catalogue",sub:"Tap items by room. The running total is the point.",
+  notes:["<b>Items are pictures and names, never dimensions.</b> A first-timer cannot estimate cubic feet - that is the entire premise. Porter does the conversion.",
+   "<b>The running total is always visible.</b> It turns an abstract worry - will it fit? - into a number that moves as they tap. The user watches the answer form.",
+   "<b>Every quantity is editable later.</b> The declaration is the object the rest of the flow depends on."],
+  evid:"Porter's website lists trucks by weight alone - 500 kg, 750 kg - and its guidance is &ldquo;consider volume and weight&rdquo;. Nobody converts a sofa into either.<span>porter.in vehicle pages, Sept 2026</span>"},
+ {id:5,t:"Labour & access",kind:"new",name:"Labour & Access",sub:"Who lifts it, and can they get in.",
+  notes:["<b>Porter's real policy is printed inline</b> under &lsquo;I&rsquo;ll load it myself&rsquo;: under 50 kg, up to 25 m, ground floor only. That rule exists today and is invisible at the point of decision. Surfacing it is the cheapest trust win in the flow.",
+   "<b>Floor and lift sit immediately after the labour choice</b>, because they are the variables that make that choice wrong. Asking them together is the whole mechanism.",
+   "<b>Prices are on the options, not after selection.</b> Hiding the helper price until later would recreate the exact surprise this feature removes."],
+  evid:"&ldquo;Our society had a rule that you can&rsquo;t shift after six but because of them we were late &hellip; they will most likely ask you more than the amount shown on app during booking&rdquo;<span>V0000000, Quora, Pune</span>"},
+ {id:6,t:"Choose a vehicle",kind:"new",name:"Recommended vehicle",sub:"The screen the brief names as the entry point - with guidance on it.",
+  notes:["<b>The reason carries the arithmetic.</b> A 2024 study found recommendation agents cut choice overload but raise decision uncertainty and lower perceived control - so the recommendation must show its working.",
+   "<b>It names what does NOT fit, not only what does.</b> That sentence prevents the second-trip failure, and it teaches the rule for next time.",
+   "<b>The override is visible before it is needed</b>, expanding into the familiar grid. Nothing is taken away from anyone.",
+   "<b>Confidence is graded, never binary.</b> Room to spare / fits comfortably / tight fit. Overclaiming a fit is how you manufacture a doorstep failure."],
+  evid:"&ldquo;85 items declared five days ahead, a Bolero turned up, forcing for 2 trips &hellip; No survey was done by the vendor.&rdquo;<span>RahulT&rsquo;s, ConsumerComplaints.in, Apr 2025</span>"},
+ {id:7,t:"Confirm",kind:"new",name:"A price that holds",sub:"Itemised, and binding on the declaration.",
+  notes:["<b>The quote is binding because the load was declared.</b> That conditionality is stated in one line - it is what makes the promise keepable, and what stops it being gamed.",
+   "<b>Override to a vehicle that will not fit and the price is withdrawn</b>, not quoted. Try it from screen 6.",
+   "<b>&lsquo;What happens next&rsquo; is on the confirm screen</b>, not buried in help. Uber's own A/B found explaining each granular wait step cut post-request cancellations 11%.",
+   "<b>The 60-minute loading clock is explained before it starts</b>, with the overrun rate shown."],
+  evid:"&ldquo;The fare was agreed at Rs.1,100, but I was charged Rs.1,620 without a clear explanation.&rdquo;<span>Md sahil Sahil, Google Play, 28 Aug 2026</span>"},
+ {id:8,t:"Your trip",kind:"exist",name:"Live tracking",sub:"Existing screen, two additions.",
+  notes:["<b>Registration-number match</b> is surfaced as a badge. Users asked for this by name.",
+   "<b>Declared scope travels with the job</b> - the driver accepted 16 items, 2 floors and one helper before allotment, so both sides see the same job.",
+   "<b>A drop OTP closes the trip.</b> It is also what makes the North Star honest: completion is currently self-reported by the party with the incentive to misreport it."],
+  evid:"&ldquo;The app doesn&rsquo;t check if a wrong Regn No vehicle turns up.&rdquo; &middot; &ldquo;My item was not delivered but Porter marked it as delivered &hellip; this is the reason they have not included the OTP option.&rdquo;<span>Harsha Sridhar &amp; Prabhakar Ranjan, Play / App Store</span>"},
+ {id:9,t:"Trip complete",kind:"new",name:"Receipt and the loop",sub:"The kept promise, made explicit.",
+  notes:["<b>The receipt states that the quoted price was the price paid.</b> A promise kept invisibly builds no trust.",
+   "<b>Saving the inventory is the loop.</b> The second move starts 80% complete - switching cost rises without a lock-in, and it costs one table.",
+   "<b>No prompt is scheduled here.</b> Two of Porter's most recent 1-star reviews are about notification volume, so the lease-anniversary nudge is one message, eleven months out, and nothing else."],
+  evid:"&ldquo;Almost 20 notifications in a day. I will use the app when I have a need. Uninstalling due to the disturbance.&rdquo;<span>Lajeesh k, App Store, 3 Sep 2026</span>"}
+];
+
+const S={i:3,qty:{...PRESETS[3].items},preset:"1bhk",room:"Bedroom",lab:"self",veh:null,svc:"truck",otp:""};
+const $=s=>document.querySelector(s);
+const rs=n=>"₹"+n.toLocaleString("en-IN");
+const dec=()=>CAT.reduce((t,[,n,v])=>t+v*(S.qty[n]||0),0);
+const cnt=()=>Object.values(S.qty).reduce((a,b)=>a+b,0);
+const req=()=>Math.round(dec()*PACKING);
+const wt=()=>Math.round(dec()*DENSITY);
+const fits=v=>v.vol>=req()&&v.kg>=wt();
+const why=v=>{const a=req()-v.vol,b=wt()-v.kg;
+  return a>0&&b>0?"over by "+a+" cu ft and "+b+" kg":a>0?"over volume by "+a+" cu ft":b>0?"over payload by "+b+" kg":"";};
+const auto=()=>VEH.find(fits)||VEH[VEH.length-1];
+const cur=()=>S.veh?VEH.find(v=>v.n===S.veh):auto();
+const stairs=()=>{const f=+($("#floor")?.value??2),l=($("#lift")?.value??"no")==="yes";return l||!f?0:f*60;};
+const total=()=>{const v=cur();return v.base+v.km*DIST+LAB.find(l=>l.k===S.lab).p+stairs();};
+
+function rail(){
+  $("#rail").innerHTML=SCREENS.map(s=>
+    `<button data-go="${s.id}" aria-current="${S.i===s.id}" class="${s.kind==='exist'?'exist':''}">
+      <span class="n">${s.id}</span> ${s.t}</button>`).join("");
+}
+function notes(){
+  const s=SCREENS.find(x=>x.id===S.i);
+  $("#kind").className="badge "+(s.kind==="new"?"new":"exist");
+  $("#kind").textContent=s.kind==="new"?"New screen":"Existing screen";
+  $("#nTitle").textContent=s.name; $("#nSub").textContent=s.sub;
+  $("#nList").innerHTML=s.notes.map(n=>`<li>${n}</li>`).join("");
+  $("#nEvid").innerHTML=s.evid;
+  $("#ttl").textContent=s.t;
+}
+function screen(){
+  const b=$("#scr"), f=$("#foot"), v=cur(), a=auto(), d=dec(), n=req();
+  const util=v?Math.round(n/v.vol*100):0, over=n>v.vol||wt()>v.kg;
+  const small=VEH[VEH.indexOf(v)-1];
+  const fit=over?"Will not fit":util>88?"Tight fit":util<62?"Room to spare":"Fits comfortably";
+  if(S.i===1){
+    b.innerHTML=`<div style="font-size:13px;color:var(--ink-2)">What are you sending today?</div>
+      <div class="svc">
+        <button aria-pressed="${S.svc==='truck'}" data-svc="truck"><span class="ic">&#128666;</span>Truck</button>
+        <button aria-pressed="${S.svc==='2w'}" data-svc="2w"><span class="ic">&#127949;</span>Two Wheeler</button>
+        <button aria-pressed="${S.svc==='pm'}" data-svc="pm"><span class="ic">&#128230;</span>Packers &amp; Movers</button>
+      </div>
+      <div style="margin-top:16px;font-size:12px;color:var(--ink-3)">Recent</div>
+      <div class="field" style="margin-top:6px"><div class="val" style="font-size:12.5px;color:var(--ink-3)">No previous trips</div></div>`;
+    f.innerHTML=`<button class="cta" data-go="2">Continue</button>`;
+  } else if(S.i===2){
+    b.innerHTML=`<div class="map">map</div>
+      <div style="margin-top:12px"></div>
+      <div class="field"><div class="lab"><span class="dot" style="background:var(--good)"></span>Pickup</div>
+        <div class="val">HSR Layout Sector 2, Bengaluru</div></div>
+      <div class="field"><div class="lab"><span class="dot" style="background:var(--crit)"></span>Drop</div>
+        <div class="val">Koramangala 5th Block, Bengaluru</div></div>
+      <div class="field"><div class="lab">Distance</div><div class="val mono">${DIST} km</div></div>`;
+    f.innerHTML=`<button class="cta" data-go="3">Continue</button>`;
+  } else if(S.i===3){
+    b.innerHTML=`<div style="font-size:13px;color:var(--ink-2);margin-bottom:11px">
+        Tell us roughly what you&rsquo;re moving and we&rsquo;ll pick the right vehicle - and hold the price.</div>
+      <div class="presets">${PRESETS.map(p=>
+        `<button class="preset" aria-pressed="${S.preset===p.k}" data-p="${p.k}"><b>${p.n}</b><span>${p.d}</span></button>`).join("")}</div>
+      <div class="total"><div><div class="lab" style="font-size:10.5px;color:var(--ink-3)">DECLARED</div>
+        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()?cnt()+" items":"nothing yet"}</div></div>
+        <div class="v">${d} cu ft</div></div>`;
+    f.innerHTML=`<button class="cta" data-go="4">Build my list</button>
+      <button class="cta ghost" data-go="6">Skip &mdash; I&rsquo;ll choose the vehicle myself</button>`;
+  } else if(S.i===4){
+    b.innerHTML=`<div class="rooms">${ROOMS.map(r=>`<button aria-pressed="${S.room===r}" data-r="${r}">${r}</button>`).join("")}</div>
+      ${CAT.filter(([r])=>r===S.room).map(([,nm,vv])=>{const q=S.qty[nm]||0;
+        return `<div class="row"><div><div class="nm">${nm}</div><div class="cu">${vv} cu ft</div></div>
+          <div class="step"><button data-m="${nm}">&minus;</button><div class="q${q?" on":""}">${q}</div>
+          <button data-a="${nm}">+</button></div></div>`;}).join("")}
+      <div class="total"><div><div style="font-size:10.5px;color:var(--ink-3);letter-spacing:.04em">DECLARED</div>
+        <div style="font-size:11.5px;color:var(--ink-2)">${cnt()} items</div></div><div class="v">${d} cu ft</div></div>`;
+    f.innerHTML=`<button class="cta" data-go="5">Continue</button>`;
+  } else if(S.i===5){
+    b.innerHTML=`<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:9px">Who will load and unload?</div>
+      ${LAB.map(l=>`<div class="opt" role="radio" tabindex="${S.lab===l.k?0:-1}" aria-checked="${S.lab===l.k}" data-l="${l.k}">
+        <div class="rd"></div><div><b>${l.n}</b><small>${l.d}</small></div>
+        <div class="pr">${l.p?"+"+rs(l.p):"included"}</div></div>`).join("")}
+      <div style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0">Getting in and out</div>
+      <div class="two">
+        <label class="f">Floor at pickup<select id="floor">${[0,1,2,3,4].map(i=>
+          `<option value="${i}" ${i===2?"selected":""}>${i?i+(i===1?"st":i===2?"nd":i===3?"rd":"th"):"Ground"}</option>`).join("")}</select></label>
+        <label class="f">Lift available<select id="lift"><option value="no" selected>No - stairs</option><option value="yes">Yes</option></select></label>
+        <label class="f">Society allows until<select id="hours"><option value="18" selected>6:00 pm</option><option value="20">8:00 pm</option><option value="none">No restriction</option></select></label>
+        <label class="f">Gate pass needed<select id="gate"><option value="no">No</option><option value="yes">Yes</option></select></label>
+      </div>
+      <p style="font-size:11.5px;color:var(--ink-3);margin-top:10px" id="accn"></p>`;
+    f.innerHTML=`<button class="cta" data-go="6">See my vehicle</button>`;
+  } else if(S.i===6){
+    b.innerHTML=`<div class="rec"><div class="top">
+        <div><div class="veh">${v.n}</div><div class="sub">${v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
+        <div class="pill ${over||util>88?"no":"ok"}">${fit}</div></div>
+        <div class="why">${d?`Your <b>${cnt()} items</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
+          with the gaps real loading leaves.
+          ${small?`A ${small.n} holds ~${small.vol} &mdash; ${!fits(small)?"it wouldn't fit in one trip ("+why(small)+")."
+            :"that would also work if you want to save a little."}`:""}
+          The ${v.n} holds ~${v.vol}.`:"Nothing declared yet - go back to step 3."}
+          <div class="bar ${over||util>88?"no":""}"><i style="width:${Math.min(100,util)}%"></i></div>
+          <div class="barlab"><span>${n} cu ft of ${v.vol} used</span><span>${util}%</span></div></div></div>
+      <details class="alt" ${S.veh?"open":""}><summary>Change vehicle</summary>
+        ${VEH.map(x=>`<button class="vrow" aria-pressed="${x.n===v.n}" data-v="${x.n}">
+          <span>${x.n}<span class="cap"> &middot; ~${x.vol} cu ft, ${x.kg} kg</span></span>
+          <span class="${fits(x)?"cap":"bad"}">${fits(x)?"fits":why(x)}</span>
+          <span class="cap">from ${rs(x.base+x.km*DIST)}</span></button>`).join("")}</details>`;
+    f.innerHTML=`<button class="cta" data-go="7">Continue to price</button>`;
+  } else if(S.i===7){
+    const l=LAB.find(x=>x.k===S.lab), st=stairs(), lines=[[v.n+" base fare",v.base],["Distance &middot; "+DIST+" km",v.km*DIST]];
+    if(l.p) lines.push([l.n.replace("+",""),l.p]);
+    if(st) lines.push(["Stairs &middot; 2 floors, no lift",st]);
+    b.innerHTML=`${lines.map(([k2,v2])=>`<div class="qrow"><span>${k2}</span><span>${rs(v2)}</span></div>`).join("")}
+      <div class="qtot"><span style="font-size:12.5px">Total, fixed</span><b>${rs(total())}</b></div>
+      <div class="lock ${over?"warn":""}">${over
+        ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${cnt()} items need ${n} cu ft and the ${v.n} holds ~${v.vol}. Choose the ${a.n}, or book two trips and we&rsquo;ll price them together.`
+        : `&#10003; <b>${rs(total())} is what you pay.</b> Fixed for the ${cnt()} items you listed &mdash; no recalculation after the trip unless you add a stop or items on the day.`}</div>
+      <div class="next"><b style="font-size:12px">What happens next</b><ol>
+        <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
+        <li>${S.lab==="self"?"You load the vehicle yourself. The driver helps with items under 50 kg, up to 25 m, ground floor only."
+          :l.n.replace("+","")+" arrive with the vehicle and carry everything, including the stairs."}</li>
+        <li>Loading is free for 60 minutes, then &#8377;2/min. The app shows a live countdown.</li>
+        <li>At drop you share a 4-digit OTP. The trip only closes once you do.</li></ol></div>`;
+    f.innerHTML=`<button class="cta" data-go="8" ${over?"disabled":""}>${over?"Pick a vehicle that fits":"Book for "+rs(total())}</button>`;
+  } else if(S.i===8){
+    b.innerHTML=`<div class="map">driver 4 min away</div>
+      <div class="drv"><div class="avatar">R</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">Ramesh K.</div>
+          <div style="font-size:11.5px;color:var(--ink-3)">${cur().n} &middot; <span class="mono">KA 05 AJ 4412</span></div></div>
+        <div style="font-size:19px">&#9742;</div></div>
+      <div class="regmatch">&#10003; Vehicle number matches your booking</div>
+      <div class="field" style="margin-top:11px"><div class="lab">Accepted scope</div>
+        <div class="val" style="font-size:12.5px">${cnt()} items &middot; ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")} &middot; 2 floors, no lift</div></div>
+      <div class="field"><div class="lab">Price</div><div class="val mono">${rs(total())} &mdash; fixed</div></div>
+      <div style="font-size:12.5px;margin-top:13px">Share this OTP at drop</div>
+      <div class="otp">${[0,1,2,3].map(i=>`<input maxlength="1" data-otp="${i}" value="${S.otp[i]||""}" inputmode="numeric" aria-label="OTP digit ${i+1}">`).join("")}</div>`;
+    f.innerHTML=`<button class="cta" data-go="9">Complete trip</button>`;
+  } else {
+    b.innerHTML=`<div class="done"><div class="tick">&#10003;</div>
+      <div style="font-family:Archivo,sans-serif;font-size:19px;font-weight:700">Trip completed</div>
+      <div style="font-size:12.5px;color:var(--ink-2);margin-top:5px">Verified with your OTP at 11:24</div></div>
+      <div class="field"><div class="lab">You booked</div>
+        <div class="val" style="font-size:12.5px">${cur().n} for ${cnt()} items, ${LAB.find(l=>l.k===S.lab).n.replace("I'll load it myself","no helper")}</div></div>
+      <div class="field"><div class="lab">You paid</div><div class="val mono">${rs(total())}</div></div>
+      <div class="lock">&#10003; <b>The price you were quoted is the price you paid.</b></div>
+      <div class="field" style="margin-top:11px"><div class="lab">Save this list?</div>
+        <div class="val" style="font-size:12.5px">Your ${cnt()} items are saved to your profile, so your next move starts almost done.</div></div>`;
+    f.innerHTML=`<button class="cta" data-go="1">Start again</button>`;
+  }
+  if(S.i===5) accessNote();
+}
+function accessNote(){
+  const el=$("#accn"); if(!el) return;
+  const f=+$("#floor").value, l=$("#lift").value==="yes", h=$("#hours").value, g=$("#gate").value==="yes";
+  const bits=[];
+  if(f>0&&!l) bits.push(`<b>${f} ${f>1?"floors":"floor"} of stairs</b> is on the job card before the driver accepts it`);
+  if(f>=3&&!l&&S.lab!=="h2") bits.push(`at that floor without a lift we&rsquo;d suggest <b>2 helpers</b>`);
+  if(h!=="none") bits.push(`slots after <b>${h==="18"?"6:00 pm":h+":00"}</b> are disabled for this address`);
+  if(g) bits.push(`the driver is told a <b>gate pass</b> is needed`);
+  el.innerHTML=bits.length?bits.join(" &middot; ")+".":"No access constraints declared.";
+}
+function render(){rail();notes();screen();}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-go],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v],[data-svc]");
+  if(!t) return;
+  if(t.dataset.svc) S.svc=t.dataset.svc;
+  if(t.dataset.p){const p=PRESETS.find(x=>x.k===t.dataset.p);S.preset=p.k;S.qty={...p.items};S.veh=null;}
+  if(t.dataset.r) S.room=t.dataset.r;
+  if(t.dataset.a){S.qty[t.dataset.a]=(S.qty[t.dataset.a]||0)+1;S.preset=null;S.veh=null;}
+  if(t.dataset.m){S.qty[t.dataset.m]=Math.max(0,(S.qty[t.dataset.m]||0)-1);S.preset=null;S.veh=null;}
+  if(t.dataset.l) S.lab=t.dataset.l;
+  if(t.dataset.v) S.veh=t.dataset.v;
+  if(t.dataset.go) S.i=+t.dataset.go;
+  render();
+});
+document.addEventListener("change",e=>{if(["floor","lift","hours","gate"].includes(e.target.id)) accessNote();});
+document.addEventListener("input",e=>{
+  const i=e.target.dataset?.otp; if(i===undefined) return;
+  const a=S.otp.padEnd(4," ").split(""); a[+i]=e.target.value.replace(/\D/g,"")||" ";
+  S.otp=a.join("").trimEnd();
+  if(e.target.value&&e.target.nextElementSibling) e.target.nextElementSibling.focus();
+});
+document.addEventListener("keydown",e=>{
+  if(e.key===" "||e.key==="Enter"){const o=e.target.closest("[data-l]");if(o){e.preventDefault();S.lab=o.dataset.l;render();}}
+});
+$("#back").addEventListener("click",()=>{S.i=Math.max(1,S.i-1);render();});
+render();
+</script>
+
+</body>
+</html>

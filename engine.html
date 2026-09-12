@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Independent product-management capstone concept. Not affiliated with Porter.">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Porter Load Builder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#0e1526; --ink-2:#41506b; --ink-3:#6d7c96;
+  --ground:#eef1f7; --card:#ffffff; --card-2:#f6f8fc; --line:#dbe2ee;
+  --brand:#1b4de4; --brand-ink:#0f2f8f; --brand-wash:#e7edff;
+  --kraft:#b8722a; --kraft-wash:#fbf0e2;
+  --good:#0f7a58; --good-wash:#e2f5ee; --warn:#a8560a; --warn-wash:#fdf0e0; --crit:#b42318;
+  --shadow:0 1px 2px rgba(14,21,38,.06), 0 8px 24px -12px rgba(14,21,38,.18);
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#eaeefa; --ink-2:#a9b5cc; --ink-3:#7d8aa4;
+    --ground:#0b1020; --card:#141b2e; --card-2:#1b2438; --line:#2a3550;
+    --brand:#7b9bff; --brand-ink:#c3d2ff; --brand-wash:#1a2547;
+    --kraft:#e0a260; --kraft-wash:#2e2418;
+    --good:#4ec99e; --good-wash:#12301f; --warn:#e0a55c; --warn-wash:#2e2312; --crit:#f28b82;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#eaeefa; --ink-2:#a9b5cc; --ink-3:#7d8aa4;
+  --ground:#0b1020; --card:#141b2e; --card-2:#1b2438; --line:#2a3550;
+  --brand:#7b9bff; --brand-ink:#c3d2ff; --brand-wash:#1a2547;
+  --kraft:#e0a260; --kraft-wash:#2e2418;
+  --good:#4ec99e; --good-wash:#12301f; --warn:#e0a55c; --warn-wash:#2e2312; --crit:#f28b82;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  font-size:15px;line-height:1.5;margin:0;padding:28px 20px 64px}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:Archivo,"IBM Plex Sans",sans-serif;text-wrap:balance;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+header{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+header h1{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+header p{margin:6px 0 0;color:var(--ink-2);max-width:60ch;font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:7px;background:var(--brand-wash);color:var(--brand-ink);
+  border:1px solid color-mix(in srgb,var(--brand) 25%,transparent);
+  padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.04em}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:18px 20px}
+.card + .card{margin-top:18px}
+
+/* step rail — a real sequence, so numbering earns its place */
+.rail{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.rail button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:13px 8px;cursor:pointer;
+  font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-3);display:flex;gap:8px;align-items:center;justify-content:center}
+.rail button .n{width:19px;height:19px;border-radius:999px;background:var(--card-2);color:var(--ink-3);
+  display:grid;place-items:center;font-size:11px;font-family:"IBM Plex Mono",monospace}
+.rail button[aria-selected="true"]{color:var(--brand-ink);border-bottom-color:var(--brand)}
+.rail button[aria-selected="true"] .n{background:var(--brand);color:#fff}
+.rail button:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:9px}
+.preset{background:var(--card-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;
+  text-align:left;font:inherit;color:var(--ink)}
+.preset:hover{border-color:var(--brand)}
+.preset[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-wash);color:var(--brand-ink)}
+.preset b{display:block;font-size:13.5px;font-weight:600}
+.preset span{font-size:11.5px;color:var(--ink-3)}
+.preset[aria-pressed="true"] span{color:var(--brand-ink);opacity:.8}
+
+.roomtabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 12px}
+.roomtabs button{background:none;border:1px solid var(--line);border-radius:999px;padding:5px 12px;
+  font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer}
+.roomtabs button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+
+.items{display:flex;flex-direction:column;gap:2px;max-height:290px;overflow-y:auto}
+.item{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item .nm{font-size:13.5px}
+.item .cu{font-size:11.5px;color:var(--ink-3)}
+.stepper{display:flex;align-items:center;gap:2px}
+.stepper button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--card-2);
+  color:var(--ink);font:inherit;font-size:15px;line-height:1;cursor:pointer}
+.stepper button:hover{border-color:var(--brand);color:var(--brand-ink)}
+.stepper .q{width:26px;text-align:center;font-size:13px}
+.stepper .q.on{color:var(--kraft);font-weight:600}
+
+.totalbar{display:flex;justify-content:space-between;align-items:baseline;
+  background:var(--kraft-wash);border:1px solid color-mix(in srgb,var(--kraft) 30%,transparent);
+  border-radius:10px;padding:11px 14px;margin-top:14px}
+.totalbar .v{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:500;color:var(--kraft);font-variant-numeric:tabular-nums}
+
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;
+  border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--card-2)}
+.opt[aria-checked="true"]{border-color:var(--brand);background:var(--brand-wash)}
+.opt .dot{width:16px;height:16px;border-radius:999px;border:2px solid var(--ink-3);margin-top:2px}
+.opt[aria-checked="true"] .dot{border-color:var(--brand);background:radial-gradient(circle,var(--brand) 0 4px,transparent 5px)}
+.opt b{font-size:13.5px;font-weight:600;display:block}
+.opt small{color:var(--ink-2);font-size:12px;display:block;margin-top:2px}
+.opt .pr{font-family:"IBM Plex Mono",monospace;font-size:13px;white-space:nowrap}
+
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:520px){.fields{grid-template-columns:1fr}}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-2);font-weight:500}
+select,input[type=number]{font:inherit;font-size:13.5px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink)}
+select:focus-visible,input:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+
+/* recommendation */
+.rec{border:1px solid color-mix(in srgb,var(--brand) 35%,transparent);border-radius:12px;overflow:hidden}
+.rec .top{background:var(--brand-wash);padding:15px 17px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.rec .veh{font-family:Archivo,sans-serif;font-size:21px;font-weight:700;color:var(--brand-ink);letter-spacing:-.01em}
+.rec .sub{font-size:12px;color:var(--ink-2);margin-top:2px}
+.fit{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.fit.good{background:var(--good-wash);color:var(--good)}
+.fit.tight{background:var(--warn-wash);color:var(--warn)}
+.rec .reason{padding:14px 17px;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--line);background:var(--card)}
+.rec .reason b{color:var(--ink)}
+
+.bar{height:9px;border-radius:999px;background:var(--card-2);border:1px solid var(--line);overflow:hidden;margin:11px 0 6px}
+.bar > i{display:block;height:100%;background:var(--brand)}
+.bar.tight > i{background:var(--warn)}
+.barlab{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)}
+
+details.alt{margin-top:12px}
+details.alt summary{cursor:pointer;font-size:13px;color:var(--brand-ink);font-weight:600;list-style:none}
+details.alt summary::-webkit-details-marker{display:none}
+details.alt summary::before{content:"v ";font-family:"IBM Plex Mono",monospace}
+details.alt[open] summary::before{content:"^ "}
+.vgrid{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.vrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+  border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:var(--card-2);cursor:pointer;font:inherit;color:var(--ink);text-align:left}
+.vrow[aria-pressed="true"]{border-color:var(--ink);background:var(--card)}
+.vrow .cap{font-size:11.5px;color:var(--ink-3)}
+.vrow .no{font-size:11px;color:var(--crit)}
+
+/* quote */
+.quote .row{display:flex;justify-content:space-between;padding:7px 0;font-size:13.5px;border-bottom:1px dashed var(--line)}
+.quote .row:last-of-type{border-bottom:0}
+.quote .row span:last-child{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.quote .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:12px;border-top:2px solid var(--ink)}
+.quote .tot b{font-family:Archivo,sans-serif;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.lock{margin-top:12px;background:var(--good-wash);color:var(--good);border-radius:9px;padding:10px 13px;font-size:12.5px;font-weight:500}
+.lock.warn{background:var(--warn-wash);color:var(--warn)}
+.next{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--card-2)}
+.next ol{margin:8px 0 0;padding-left:19px;font-size:12.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+
+/* engine panel */
+.engine{position:sticky;top:22px}
+.trace{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;background:var(--card-2);
+  border:1px solid var(--line);border-radius:10px;padding:13px 15px;overflow-x:auto;white-space:pre;color:var(--ink-2)}
+.trace .k{color:var(--brand-ink)}
+.trace .v{color:var(--kraft)}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.55}
+.note code{font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--card-2)}
+.stat .lab{font-size:11px;color:var(--ink-3);letter-spacing:.05em;text-transform:uppercase;font-weight:600}
+.stat .val{font-family:"IBM Plex Mono",monospace;font-size:17px;margin-top:3px;font-variant-numeric:tabular-nums}
+footer{margin-top:26px;font-size:12px;color:var(--ink-3);line-height:1.6;max-width:78ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header>
+  <div>
+    <div class="eyebrow">Porter capstone &middot; Step 8 artifact</div>
+    <h1>Load Builder</h1>
+    <p>The sizing engine behind the proposed first-trip flow. Declare what you&rsquo;re moving; it returns a
+       right-sized vehicle, <em>its reasoning</em>, and a price that holds. Everything below is live &mdash; change
+       the load and watch the recommendation and the trace update.</p>
+  </div>
+  <div class="badge">Working prototype &middot; not affiliated with Porter</div>
+</header>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <div class="rail" role="tablist">
+        <button role="tab" aria-selected="true" data-step="1"><span class="n">1</span> What you&rsquo;re moving</button>
+        <button role="tab" aria-selected="false" data-step="2"><span class="n">2</span> Labour &amp; access</button>
+        <button role="tab" aria-selected="false" data-step="3"><span class="n">3</span> Vehicle &amp; price</button>
+      </div>
+
+      <!-- STEP 1 -->
+      <section class="pad" data-panel="1">
+        <div class="eyebrow" style="margin-bottom:9px">Start with a preset</div>
+        <div class="presets" id="presets"></div>
+        <p style="margin:10px 0 0;font-size:12px"><a href="#" id="clear" style="color:var(--ink-3)">Clear the list</a></p>
+
+        <div class="roomtabs" id="rooms"></div>
+        <div class="items" id="items"></div>
+
+        <div class="totalbar">
+          <div><div class="eyebrow">Declared load</div><div style="font-size:12px;color:var(--ink-2)" id="itemCount">no items yet</div></div>
+          <div class="v"><span id="vol">0</span> cu ft</div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="pad" data-panel="2" hidden>
+        <div class="eyebrow" style="margin-bottom:9px">Who will load and unload?</div>
+        <div class="opts" id="labour" role="radiogroup"></div>
+
+        <div class="eyebrow" style="margin:18px 0 2px">Getting in and out</div>
+        <div class="fields">
+          <label class="f">Floor at pickup
+            <select id="floor"><option value="0">Ground floor</option><option value="1">1st</option>
+            <option value="2" selected>2nd</option><option value="3">3rd</option><option value="4">4th or higher</option></select>
+          </label>
+          <label class="f">Lift available
+            <select id="lift"><option value="yes">Yes</option><option value="no" selected>No &mdash; stairs only</option></select>
+          </label>
+          <label class="f">Society allows shifting until
+            <select id="hours"><option value="none">No restriction</option><option value="18" selected>6:00 pm</option>
+            <option value="20">8:00 pm</option><option value="22">10:00 pm</option></select>
+          </label>
+          <label class="f">Gate pass needed
+            <select id="gate"><option value="no">No</option><option value="yes">Yes &mdash; society entry</option></select>
+          </label>
+        </div>
+        <p class="note" id="accessNote"></p>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="pad" data-panel="3" hidden>
+        <div class="rec" id="rec"></div>
+        <details class="alt">
+          <summary>Change vehicle</summary>
+          <div class="vgrid" id="vgrid"></div>
+        </details>
+
+        <div class="quote" style="margin-top:20px">
+          <div class="eyebrow" style="margin-bottom:7px">Your price</div>
+          <div id="lines"></div>
+          <div class="tot"><span>Total, fixed</span><b id="total">Rs.0</b></div>
+          <div class="lock" id="lock"></div>
+          <div class="next">
+            <b style="font-size:13px">What happens next</b>
+            <ol>
+              <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
+              <li id="nextLabour">You load the vehicle yourself. The driver helps with items under 50&nbsp;kg, up to 25&nbsp;m, ground floor only.</li>
+              <li>Loading is free for 60 minutes. After that, Rs.2/min &mdash; the app shows a live countdown.</li>
+              <li>At drop, you share a 4-digit OTP. The trip only closes once you do.</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ENGINE -->
+  <div class="engine">
+    <div class="card pad">
+      <div class="eyebrow">How it decided</div>
+      <h2 style="font-size:16px;margin:4px 0 12px;font-weight:700">Sizing trace</h2>
+      <div class="trace" id="trace"></div>
+      <div class="split">
+        <div class="stat"><div class="lab">Required</div><div class="val"><span id="req">0</span> cu ft</div></div>
+        <div class="stat"><div class="lab">Utilisation</div><div class="val"><span id="util">0</span>%</div></div>
+      </div>
+      <p class="note">
+        <b>Rule:</b> <code>required = declared &times; 1.25</code> (packing inefficiency) and <code>weight = declared &times; 3.2 kg/cu ft</code>, then the smallest vehicle
+        clearing both usable volume and payload. Item volumes and vehicle capacities are <b>modelled for this
+        prototype</b> &mdash; Porter publishes payload but not consistent usable dimensions, and they vary by city.
+        Production would calibrate against the fleet master and completed-trip data.
+      </p>
+    </div>
+    <div class="card pad">
+      <div class="eyebrow">Why this exists</div>
+      <p style="font-size:13px;color:var(--ink-2);margin:7px 0 0">
+        41% of first-time users who reach Porter&rsquo;s vehicle-selection screen complete a trip within 7 days.
+        The steepest single drop is that screen itself &mdash; five vehicles listed by kilograms and feet, and no way
+        to tell which one holds a fridge, a double bed and eight cartons. The answer currently arrives at the
+        doorstep, where it stops being a question and becomes a renegotiation.
+      </p>
+      <p style="font-size:13px;color:var(--ink-2);margin:10px 0 0">
+        Porter already runs an inventory-to-quote flow inside Packers &amp; Movers. This ports it to the funnel that
+        needs it.
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Independent capstone exercise for the Airtribe Product Management Launchpad. Not affiliated with, endorsed by, or
+  built for Porter / SmartShift Logistics Solutions. Vehicle capacities, item volumes and fare components are
+  modelled illustrations, not Porter&rsquo;s published rates.
+</footer>
+</div>
+
+<script>
+const CAT = [
+  ["Bedroom","Double bed + mattress",45],["Bedroom","Single bed",25],["Bedroom","Mattress only",22],
+  ["Bedroom","Wardrobe (2-door)",50],["Bedroom","Bedside table",6],
+  ["Living","Sofa (3-seater)",50],["Living","Sofa (2-seater)",32],["Living","TV up to 55\"",8],
+  ["Living","Bookshelf",20],["Living","Centre table",10],
+  ["Kitchen","Fridge (double door)",25],["Kitchen","Fridge (single door)",15],
+  ["Kitchen","Washing machine",12],["Kitchen","Microwave / oven",4],["Kitchen","Gas stove + cylinder",5],
+  ["Kitchen","Dining table + 4 chairs",40],
+  ["Other","Carton (medium)",3],["Other","Suitcase",4],["Other","Study table",15],
+  ["Other","Office chair",8],["Other","AC (split unit)",10],["Other","Cycle",12]
+];
+const ROOMS = ["Bedroom","Living","Kitchen","Other"];
+const PRESETS = [
+  {k:"single", n:"Single item", d:"one large thing", items:{"Fridge (double door)":1}},
+  {k:"pg",     n:"PG / hostel", d:"~67 cu ft", items:{"Single bed":1,"Mattress only":1,"Carton (medium)":4,"Suitcase":2}},
+  {k:"1rk",    n:"Studio / 1 RK", d:"~138 cu ft", items:{"Single bed":1,"Mattress only":1,"Wardrobe (2-door)":1,"Fridge (single door)":1,"Carton (medium)":6,"Suitcase":2}},
+  {k:"1bhk",   n:"1 BHK", d:"~204 cu ft", items:{"Double bed + mattress":1,"Wardrobe (2-door)":1,"Sofa (2-seater)":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Carton (medium)":8,"Suitcase":2}},
+  {k:"2bhk",   n:"2 BHK", d:"~379 cu ft", items:{"Double bed + mattress":1,"Single bed":1,"Wardrobe (2-door)":2,"Sofa (3-seater)":1,"Dining table + 4 chairs":1,"Fridge (double door)":1,"Washing machine":1,"TV up to 55\"":1,"Bookshelf":1,"Carton (medium)":14,"Suitcase":3}}
+];
+const VEH = [
+  {n:"3-wheeler",     vol:60,  kg:500,  base:160, perKm:12},
+  {n:"Tata Ace",      vol:120, kg:750,  base:210, perKm:15},
+  {n:"Pickup 8ft",    vol:200, kg:1250, base:300, perKm:19},
+  {n:"Tata 407",      vol:300, kg:2500, base:625, perKm:26},
+  {n:"Canter 14ft",   vol:500, kg:3500, base:1120,perKm:34}
+];
+const LABOUR = [
+  {k:"self", n:"I'll load it myself", d:"Driver helps with items under 50 kg, up to 25 m, ground floor only.", price:0},
+  {k:"h1",   n:"+1 helper",  d:"One trained loader, carries up and down stairs.", price:350},
+  {k:"h2",   n:"+2 helpers", d:"Two loaders. For a full flat, or anything above the 2nd floor.", price:650}
+];
+const DIST = 9;        // km, illustrative trip
+const DENSITY = 3.2;   // kg per cu ft - trade figure for mixed household goods (~7 lb/cu ft)
+const PACKING = 1.25;  // packing inefficiency for irregular household loads
+
+const S = {qty:{}, preset:null, room:"Bedroom", labour:"self", vehicle:null, step:1};
+
+const $ = s => document.querySelector(s);
+const rs = n => "Rs." + n.toLocaleString("en-IN");
+
+function declared(){ return CAT.reduce((t,[,n,v]) => t + v*(S.qty[n]||0), 0); }
+function weight(){ return Math.round(declared()*DENSITY); }  // modelled: mixed household goods
+function required(){ return Math.round(declared()*PACKING); }
+
+function fits(v){ return v.vol >= required() && v.kg >= weight(); }
+function failReason(v){
+  const dv = required() - v.vol, dw = weight() - v.kg;
+  if(dv > 0 && dw > 0) return "over by " + dv + " cu ft and " + dw + " kg";
+  if(dv > 0) return "over volume by " + dv + " cu ft";
+  if(dw > 0) return "over payload by " + dw + " kg";
+  return "";
+}
+function pick(){
+  const need = required(), kg = weight();
+  return VEH.find(v => v.vol >= need && v.kg >= kg) || VEH[VEH.length-1];
+}
+function floorSurcharge(){
+  const f = +$("#floor").value, lift = $("#lift").value === "yes";
+  if(lift || f === 0) return 0;
+  return f * 60;
+}
+
+function renderPresets(){
+  $("#presets").innerHTML = PRESETS.map(p =>
+    `<button class="preset" aria-pressed="${S.preset===p.k}" data-p="${p.k}"><b>${p.n}</b><span>${p.d}</span></button>`).join("");
+}
+function renderRooms(){
+  $("#rooms").innerHTML = ROOMS.map(r =>
+    `<button aria-pressed="${S.room===r}" data-r="${r}">${r}</button>`).join("");
+}
+function renderItems(){
+  $("#items").innerHTML = CAT.filter(([r]) => r === S.room).map(([,n,v]) => {
+    const q = S.qty[n]||0;
+    return `<div class="item"><div><div class="nm">${n}</div><div class="cu">${v} cu ft</div></div>
+      <div class="stepper"><button data-m="${n}">&minus;</button>
+      <div class="q${q?" on":""}">${q}</div><button data-a="${n}">+</button></div><div></div></div>`;
+  }).join("");
+}
+function renderLabour(){
+  $("#labour").innerHTML = LABOUR.map(l =>
+    `<div class="opt" role="radio" tabindex="${S.labour===l.k?0:-1}" aria-checked="${S.labour===l.k}" data-l="${l.k}">
+       <div class="dot"></div><div><b>${l.n}</b><small>${l.d}</small></div>
+       <div class="pr">${l.price ? "+"+rs(l.price) : "included"}</div></div>`).join("");
+}
+
+function renderAll(){
+  const dec = declared(), need = required(), v = S.vehicle ? VEH.find(x=>x.n===S.vehicle) : pick();
+  const auto = pick(), count = Object.values(S.qty).reduce((a,b)=>a+b,0);
+  const util = v ? Math.min(999, Math.round(need / v.vol * 100)) : 0;
+  const tight = util > 88, over = need > v.vol;
+
+  $("#vol").textContent = dec;
+  $("#itemCount").textContent = count ? `${count} item${count>1?"s":""} declared` : "no items yet";
+  $("#req").textContent = need;
+  $("#util").textContent = dec ? util : 0;
+
+  // trace
+  $("#trace").innerHTML = dec === 0
+    ? `<span class="k">waiting</span> for a declared load...`
+    : [`<span class="k">declared</span>   = <span class="v">${dec}</span> cu ft  (${count} items)`,
+       `<span class="k">packing</span>    x ${PACKING}  -> <span class="v">${need}</span> cu ft required`,
+       `<span class="k">weight</span>     ~ <span class="v">${weight()}</span> kg  (${DENSITY} kg/cu ft)`,
+       ``,
+       VEH.map(x => {
+         const mark = (x.n === auto.n) ? "->" : "  ";
+         const verdict = fits(x) ? '<span class="v">clears</span>'
+                                 : '<span style="opacity:.6">' + failReason(x) + '</span>';
+         return `${mark} ${x.n.padEnd(12)} ${String(x.vol).padStart(3)} cu ft /${String(x.kg).padStart(5)} kg  ${verdict}`;
+       }).join("\n"),
+       ``,
+       `<span class="k">recommend</span>  <span class="v">${auto.n}</span>`].join("\n");
+
+  // recommendation
+  const fitLabel = over ? "Will not fit" : tight ? "Tight fit" : (util < 62 ? "Room to spare" : "Fits comfortably");
+  const fitCls = over || tight ? "tight" : "good";
+  const smaller = VEH[VEH.indexOf(v)-1];
+  $("#rec").innerHTML = dec === 0
+    ? `<div class="top"><div><div class="veh">Nothing declared yet</div>
+        <div class="sub">Go back to step 1 and add what you&rsquo;re moving.</div></div></div>`
+    : `<div class="top">
+        <div><div class="veh">${v.n}</div>
+        <div class="sub">${v.n === auto.n ? "Recommended for your load" : "You chose this &mdash; we suggested " + auto.n}</div></div>
+        <div class="fit ${fitCls}">${fitLabel}</div>
+      </div>
+      <div class="reason">
+        Your <b>${count} items</b> come to about <b>${dec} cu ft</b>, or <b>${need} cu ft</b> once packed with the
+        gaps real loading leaves.
+        ${smaller ? `A ${smaller.n} holds ~${smaller.vol} &mdash; ${!fits(smaller)
+            ? "it wouldn't fit in one trip (" + failReason(smaller) + ")."
+            : "that would also work if you want to save a little."}` : ""}
+        The ${v.n} holds ~${v.vol}.
+        <div class="bar ${fitCls==="tight"?"tight":""}"><i style="width:${Math.min(100,util)}%"></i></div>
+        <div class="barlab"><span>${need} cu ft of ${v.vol} used</span><span>${util}%</span></div>
+      </div>`;
+
+  // alternates
+  $("#vgrid").innerHTML = VEH.map(x => {
+    const ok = fits(x);
+    return `<button class="vrow" aria-pressed="${x.n===v.n}" data-v="${x.n}">
+      <span>${x.n}<span class="cap"> &middot; ~${x.vol} cu ft, ${x.kg} kg</span></span>
+      <span class="${ok?"cap":"no"}">${ok?"fits":failReason(x)}</span>
+      <span class="cap">from ${rs(x.base + x.perKm*DIST)}</span></button>`;
+  }).join("");
+
+  // quote
+  const lab = LABOUR.find(l=>l.k===S.labour), fs = floorSurcharge();
+  const fare = v.base + v.perKm*DIST;
+  const lines = [[`${v.n} base fare`, v.base],[`Distance &middot; ${DIST} km`, v.perKm*DIST]];
+  if(lab.price) lines.push([lab.n.replace("+",""), lab.price]);
+  if(fs) lines.push([`Stairs &middot; ${$("#floor").value} floors, no lift`, fs]);
+  const total = fare + lab.price + fs;
+  $("#lines").innerHTML = lines.map(([a,b])=>`<div class="row"><span>${a}</span><span>${rs(b)}</span></div>`).join("");
+  $("#total").textContent = rs(total);
+  $("#lock").className = over ? "lock warn" : "lock";
+  $("#lock").innerHTML = dec === 0
+    ? "Declare your load to lock a price."
+    : over
+      ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${count} items need ${need} cu ft and the
+         ${v.n} holds ~${v.vol}. Choose the ${auto.n}, or book two trips and we&rsquo;ll price them together.`
+      : `&#10003; <b>${rs(total)} is what you pay.</b> Fixed for the ${count} items you listed &mdash; no recalculation
+         after the trip unless you add a stop or items on the day.`;
+  $("#nextLabour").textContent = lab.k === "self"
+    ? "You load the vehicle yourself. The driver helps with items under 50 kg, up to 25 m, ground floor only."
+    : `${lab.n.replace("+","")} arrive with the vehicle and carry everything, including the stairs.`;
+
+  // access note
+  const f = +$("#floor").value, lift = $("#lift").value==="yes", hrs = $("#hours").value;
+  const bits = [];
+  if(f>0 && !lift) bits.push(`<b>${f} ${f>1?"floors":"floor"} of stairs</b> is on the job card before the driver accepts it`);
+  if(f>=3 && !lift && S.labour!=="h2") bits.push(`at the ${f}${f===3?"rd":"th"} floor without a lift we&rsquo;d suggest <b>2 helpers</b>`);
+  if(hrs!=="none") bits.push(`slots after <b>${hrs===("18")?"6:00 pm":hrs+":00"}</b> are disabled for this address`);
+  if($("#gate").value==="yes") bits.push(`the driver is told a <b>gate pass</b> is needed`);
+  $("#accessNote").innerHTML = bits.length ? bits.join(" &middot; ") + "." : "No access constraints declared.";
+
+  const act = document.activeElement && document.activeElement.closest("[data-a],[data-m],[data-l],[data-p]");
+  const sel = act ? ["a","m","l","p"].map(k => act.dataset[k] ? `[data-${k}="${act.dataset[k]}"]` : null).find(Boolean) : null;
+  renderPresets(); renderRooms(); renderItems(); renderLabour();
+  if(sel){ const back = document.querySelector(sel); if(back) back.focus(); }
+}
+
+function setStep(n){
+  S.step = n;
+  document.querySelectorAll(".rail button").forEach(b => b.setAttribute("aria-selected", b.dataset.step == n));
+  document.querySelectorAll("[data-panel]").forEach(p => p.hidden = p.dataset.panel != n);
+}
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-step],[data-p],[data-r],[data-a],[data-m],[data-l],[data-v],#clear");
+  if(!t) return;
+  if(t.dataset.step) return setStep(t.dataset.step);
+  if(t.dataset.p){ const p = PRESETS.find(x=>x.k===t.dataset.p);
+    S.preset = S.preset===p.k ? null : p.k; S.qty = S.preset ? {...p.items} : {}; S.vehicle = null; }
+  if(t.dataset.r) S.room = t.dataset.r;
+  if(t.dataset.a){ S.qty[t.dataset.a] = (S.qty[t.dataset.a]||0)+1; S.preset = null; S.vehicle = null; }
+  if(t.dataset.m){ S.qty[t.dataset.m] = Math.max(0,(S.qty[t.dataset.m]||0)-1); S.preset = null; S.vehicle = null; }
+  if(t.id === "clear"){ e.preventDefault(); S.qty = {}; S.preset = null; S.vehicle = null; }
+  if(t.dataset.l) S.labour = t.dataset.l;
+  if(t.dataset.v) S.vehicle = t.dataset.v;
+  renderAll();
+});
+document.addEventListener("keydown", e => {
+  if(e.key===" "||e.key==="Enter"){ const o = e.target.closest("[data-l]"); if(o){ e.preventDefault(); S.labour=o.dataset.l; renderAll(); } }
+});
+["floor","lift","hours","gate"].forEach(id => document.addEventListener("change", e => { if(e.target.id===id) renderAll(); }));
+
+// open in a realistic working state: a 1BHK move, which is the primary persona
+S.preset = "1bhk"; S.qty = {...PRESETS[3].items};
+renderAll(); setStep(1);
+</script>
+
+</body>
+</html>
