@@ -59,7 +59,7 @@ header p{margin:6px 0 0;color:var(--ink-2);max-width:60ch;font-size:14px}
 .card + .card{margin-top:18px}
 
 /* step rail — a real sequence, so numbering earns its place */
-.rail{display:flex;gap:0;border-bottom:1px solid var(--line)}
+.rail{display:flex;gap:0;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .rail button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:13px 8px;cursor:pointer;
   font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-3);display:flex;gap:8px;align-items:center;justify-content:center}
 .rail button .n{width:19px;height:19px;border-radius:999px;background:var(--card-2);color:var(--ink-3);
@@ -252,8 +252,8 @@ footer{margin-top:26px;font-size:12px;color:var(--ink-3);line-height:1.6;max-wid
             <b style="font-size:13px">What happens next</b>
             <ol>
               <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
-              <li id="nextLabour">You load the vehicle yourself. The driver helps with items under 50&nbsp;kg, up to 25&nbsp;m, ground floor only.</li>
-              <li>Loading is free for 60 minutes. After that, Rs.2/min &mdash; the app shows a live countdown.</li>
+              <li id="nextLabour">You load the vehicle yourself. The driver helps with items under 50&nbsp;kg, ground floor only.</li>
+              <li>Loading time is bundled into the base fare - 50 to 120 minutes depending on the vehicle. After that a per-minute charge applies, with a live countdown.</li>
               <li>At drop, you share a 4-digit OTP. The trip only closes once you do.</li>
             </ol>
           </div>
@@ -330,7 +330,7 @@ const VEH = [
   {n:"Canter 14ft", vol:504, kg:3500, base:1120,perKm:34, incl:3, mins:120}
 ];
 const LABOUR = [
-  {k:"self", n:"I'll load it myself", d:"Driver helps with items under 50 kg, up to 25 m, ground floor only.", price:0},
+  {k:"self", n:"I'll load it myself", d:"Driver helps with items under 50 kg, ground floor only.", price:0},
   {k:"h1",   n:"+1 helper",  d:"One trained loader, carries up and down stairs.", price:700},
   {k:"h2",   n:"+2 helpers", d:"Two loaders. For a full flat, or anything above the 2nd floor.", price:1300}
 ];
@@ -362,8 +362,8 @@ function pick(){
 }
 function floorSurcharge(){
   const f = +$("#floor").value, lift = $("#lift").value === "yes";
-  if(lift || f === 0) return 0;
-  return f * 60;
+  if(S.labour === "self" || lift || f === 0) return 0;
+  return f * 250;   // matches the flow: charged only when helpers carry
 }
 
 function renderPresets(){
@@ -466,7 +466,7 @@ function renderAll(){
       : `&#10003; <b>${rs(total)} is what you pay.</b> Fixed for the ${count} items you listed &mdash; no recalculation
          after the trip unless you add a stop or items on the day.`;
   $("#nextLabour").textContent = lab.k === "self"
-    ? "You load the vehicle yourself. The driver helps with items under 50 kg, up to 25 m, ground floor only."
+    ? "You load the vehicle yourself. The driver helps with items under 50 kg, ground floor only."
     : `${lab.n.replace("+","")} arrive with the vehicle and carry everything, including the stairs.`;
 
   // access note

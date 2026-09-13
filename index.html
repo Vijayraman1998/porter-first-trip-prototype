@@ -179,6 +179,7 @@ details.alt[open] summary::before{content:"7  "}
 
 /* annotation panel */
 .notes{position:sticky;top:22px}
+@media(max-width:860px){.phone,.notes{position:static}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:17px 19px}
 .card+.card{margin-top:16px}
 .card h3{font-size:16px;font-weight:700;margin-bottom:3px}
@@ -336,8 +337,9 @@ const fits=v=>v.vol>=req()&&v.kg>=wt();
 const why=v=>{const a=req()-v.vol,b=wt()-v.kg;
   return a>0&&b>0?"over by "+a+" cu ft and "+b+" kg":a>0?"over volume by "+a+" cu ft":b>0?"over payload by "+b+" kg":"";};
 const auto=()=>VEH.find(fits)||VEH[VEH.length-1];
+const nofit=()=>dec()>0&&!VEH.some(fits);
 const cur=()=>S.veh?VEH.find(v=>v.n===S.veh):auto();
-const stairs=()=>(S.lift==="yes"||!S.floor)?0:S.floor*250;
+const stairs=()=>(S.lab==="self"||S.lift==="yes"||!S.floor)?0:S.floor*250;   // charged only when helpers carry
 const floorTxt=()=>S.floor?`${S.floor} ${S.floor>1?"floors":"floor"}, ${S.lift==="yes"?"lift":"no lift"}`
                         :"ground floor";
 const fare=v=>v.base+v.km*Math.max(0,DIST-v.incl);   // base fares include 1-3 km
@@ -395,7 +397,7 @@ function screen(){
         <div class="v">${d} cu ft</div></div>
       <p style="margin:9px 0 0;font-size:11.5px"><a href="#" id="clear" style="color:var(--ink-3)">Clear the list</a></p>`;
     f.innerHTML=`<button class="cta" data-go="4">Build my list</button>
-      <button class="cta ghost" data-go="6">Skip &mdash; I&rsquo;ll choose the vehicle myself</button>`;
+      <button class="cta ghost" data-go="5">Skip &mdash; I&rsquo;ll choose the vehicle myself</button>`;
   } else if(S.i===4){
     b.innerHTML=`<div class="rooms">${ROOMS.map(r=>`<button aria-pressed="${S.room===r}" data-r="${r}">${r}</button>`).join("")}</div>
       ${CAT.filter(([r])=>r===S.room).map(([,nm,vv])=>{const q=S.qty[nm]||0;
@@ -412,7 +414,7 @@ function screen(){
         <div class="pr">${l.p?"+"+rs(l.p):"included"}</div></div>`).join("")}
       <div style="font-size:12.5px;color:var(--ink-2);margin:14px 0 0">Getting in and out</div>
       <div class="two">
-        <label class="f">Floor at pickup<select id="floor">${[0,1,2,3,4].map(i=>
+        <label class="f">Floor at pickup <span style="font-weight:400;color:var(--ink-3)">&middot; stairs &#8377;250/floor when helpers carry; free if you load yourself or there&rsquo;s a lift</span><select id="floor">${[0,1,2,3,4].map(i=>
           `<option value="${i}" ${i===S.floor?"selected":""}>${i?i+(i===1?"st":i===2?"nd":i===3?"rd":"th"):"Ground"}</option>`).join("")}</select></label>
         <label class="f">Lift available<select id="lift"><option value="no" ${S.lift==="no"?"selected":""}>No - stairs</option><option value="yes" ${S.lift==="yes"?"selected":""}>Yes</option></select></label>
         <label class="f">Society allows until<select id="hours">${[["18","6:00 pm"],["20","8:00 pm"],["none","No restriction"]].map(([v,l])=>
@@ -423,8 +425,8 @@ function screen(){
     f.innerHTML=`<button class="cta" data-go="6">See my vehicle</button>`;
   } else if(S.i===6){
     b.innerHTML=`<div class="rec"><div class="top">
-        <div><div class="veh">${v.n}</div><div class="sub">${v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
-        <div class="pill ${over||util>88?"no":"ok"}">${fit}</div></div>
+        <div><div class="veh">${v.n}</div><div class="sub">${nofit()?"Largest in the fleet - and this load will not fit in one trip":v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
+        <div class="pill ${!d||over||util>88?"no":"ok"}">${d?fit:"Nothing to size yet"}</div></div>
         <div class="why">${d?`Your <b>${items()}</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
           with the gaps real loading leaves.
           ${small?`A ${small.n} holds ~${small.vol} &mdash; ${!fits(small)?"it wouldn't fit in one trip ("+why(small)+")."
@@ -437,20 +439,22 @@ function screen(){
           <span>${x.n}<span class="cap"> &middot; ~${x.vol} cu ft, ${x.kg} kg</span></span>
           <span class="${fits(x)?"cap":"bad"}">${fits(x)?"fits":why(x)}</span>
           <span class="cap">from ${rs(fare(x))}</span></button>`).join("")}</details>`;
-    f.innerHTML=d?`<button class="cta" data-go="7">Continue to price</button>`
-                 :`<button class="cta" disabled>Declare your load first</button>
-                   <button class="cta ghost" data-go="3">Back to presets</button>`;
+    f.innerHTML=!d?`<button class="cta" disabled>Declare your load first</button>
+                   <button class="cta ghost" data-go="3">Back to presets</button>`
+               :nofit()?`<button class="cta" disabled>No single vehicle fits - book two trips</button>
+                   <button class="cta ghost" data-go="4">Trim the list</button>`
+               :`<button class="cta" data-go="7">Continue to price</button>`;
   } else if(S.i===7){
     const l=LAB.find(x=>x.k===S.lab), st=stairs(), lines=[[v.n+" base fare",v.base],["Distance &middot; "+(DIST-v.incl)+" km beyond the "+v.incl+" km included",v.km*(DIST-v.incl)]];
     if(l.p) lines.push([l.n.replace("+",""),l.p]);
     if(st) lines.push(["Stairs &middot; "+floorTxt(),st]);
     b.innerHTML=`${lines.map(([k2,v2])=>`<div class="qrow"><span>${k2}</span><span>${rs(v2)}</span></div>`).join("")}
-      <div class="qtot"><span style="font-size:12.5px">Total, fixed</span><b>${rs(total())}</b></div>
+      ${(!d||over)?`<div class="qtot" style="opacity:.45"><span style="font-size:12.5px">Total</span><b>&mdash;</b></div>`:`<div class="qtot"><span style="font-size:12.5px">Total, fixed</span><b>${rs(total())}</b></div>`}
       <div class="lock ${(over||!d)?"warn":""}">${!d
         ? `<b>Nothing is declared, so nothing can be fixed.</b> A binding price is binding <i>because</i> the load
            was declared - with an empty list there is no declaration to hold Porter to. Go back and pick a preset.`
         : over
-        ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${items()} need ${n} cu ft and the ${v.n} holds ~${v.vol}. Choose the ${a.n}, or book two trips and we&rsquo;ll price them together.`
+        ? `<b>We can&rsquo;t fix a price for this combination.</b> Your ${items()} need ${n} cu ft and the ${v.n} holds ~${v.vol}. ${VEH.some(fits)?`Choose the ${a.n}, or book two trips and we&rsquo;ll price them together.`:`No single vehicle takes this in one trip - book two trips (each leg priced separately), or trim the list.`}`
         : `&#10003; <b>${rs(total())} is what you pay.</b> Fixed for the ${items()} you listed &mdash; no recalculation after the trip unless you add a stop or items on the day.`}</div>
       <div class="next"><b style="font-size:12px">What happens next</b><ol>
         <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
@@ -520,7 +524,8 @@ document.addEventListener("change",e=>{
 });
 document.addEventListener("input",e=>{
   const i=e.target.dataset?.otp; if(i===undefined) return;
-  const a=S.otp.padEnd(4," ").split(""); a[+i]=e.target.value.replace(/\D/g,"")||" ";
+  e.target.value=e.target.value.replace(/\D/g,"");
+  const a=S.otp.padEnd(4," ").split(""); a[+i]=e.target.value||" ";
   S.otp=a.join("").replace(/\s+$/,"");
   const nxt=e.target.nextElementSibling;
   if(e.target.value&&nxt) nxt.focus();
