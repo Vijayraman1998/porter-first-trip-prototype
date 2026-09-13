@@ -427,7 +427,7 @@ function screen(){
     b.innerHTML=`<div class="rec"><div class="top">
         <div><div class="veh">${v.n}</div><div class="sub">${!d?"Nothing declared yet":nofit()?"Largest in the fleet - and this load will not fit in one trip":v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
         <div class="pill ${!d||over||util>88?"no":"ok"}">${d?fit:"Nothing to size yet"}</div></div>
-        <div class="why">${d?`Your <b>${items()}</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
+        <div class="why">${d?`Your <b>${items()}</b> ${cnt()===1?"comes":"come"} to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
           with the gaps real loading leaves.
           ${small?`A ${small.n} holds ~${small.vol} &mdash; ${!fits(small)?"it wouldn't fit in one trip ("+why(small)+")."
             :"that would also work if you want to save a little."}`:""}

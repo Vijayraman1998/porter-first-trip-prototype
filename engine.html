@@ -434,7 +434,7 @@ function renderAll(){
         <div class="fit ${fitCls}">${fitLabel}</div>
       </div>
       <div class="reason">
-        Your <b>${count} items</b> come to about <b>${dec} cu ft</b>, or <b>${need} cu ft</b> once packed with the
+        Your <b>${count} item${count===1?"":"s"}</b> ${count===1?"comes":"come"} to about <b>${dec} cu ft</b>, or <b>${need} cu ft</b> once packed with the
         gaps real loading leaves.
         ${smaller ? `A ${smaller.n} holds ~${smaller.vol} &mdash; ${!fits(smaller)
             ? "it wouldn't fit in one trip (" + failReason(smaller) + ")."
