@@ -144,8 +144,8 @@ select:focus-visible{outline:2px solid var(--porter);outline-offset:1px}
 details.alt{margin-top:10px}
 details.alt summary{cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;color:var(--porter-ink)}
 details.alt summary::-webkit-details-marker{display:none}
-details.alt summary::before{content:"v  "}
-details.alt[open] summary::before{content:"^  "}
+details.alt summary::before{content:"8  "}
+details.alt[open] summary::before{content:"7  "}
 .vrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;width:100%;
   border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:var(--card-2);margin-top:5px;
   font:inherit;font-size:12px;color:var(--ink);cursor:pointer;text-align:left}
@@ -270,7 +270,7 @@ const VEH=[{n:"3-wheeler",vol:96,kg:500,base:205,km:12,incl:1,mins:50},
 {n:"Pickup 8ft",vol:198,kg:1250,base:330,km:19,incl:1,mins:75},
 {n:"Tata 407",vol:297,kg:2500,base:590,km:26,incl:2,mins:90},
 {n:"Canter 14ft",vol:504,kg:3500,base:1120,km:34,incl:3,mins:120}];
-const LAB=[{k:"self",n:"I'll load it myself",d:"Driver helps with items under 50 kg, up to 25 m, ground floor only.",p:0},
+const LAB=[{k:"self",n:"I'll load it myself",d:"Driver helps with items under 50 kg, ground floor only.",p:0},
 {k:"h1",n:"+1 helper",d:"One trained loader, carries up and down stairs.",p:700},
 {k:"h2",n:"+2 helpers",d:"Two loaders. For a full flat, or anything above the 2nd floor.",p:1300}];
 const DIST=9, DENSITY=3.2, PACKING=1.30;
@@ -295,7 +295,7 @@ const SCREENS=[
    "<b>Every quantity is editable later.</b> The declaration is the object the rest of the flow depends on."],
   evid:"Porter's website lists trucks by weight alone - 500 kg, 750 kg - and its guidance is &ldquo;consider volume and weight&rdquo;. Nobody converts a sofa into either.<span>porter.in vehicle pages, Sept 2026</span>"},
  {id:5,t:"Labour & access",kind:"new",name:"Labour & Access",sub:"Who lifts it, and can they get in.",
-  notes:["<b>Porter's real policy is printed inline</b> under &lsquo;I&rsquo;ll load it myself&rsquo;: under 50 kg, up to 25 m, ground floor only. That rule exists today and is invisible at the point of decision. Surfacing it is the cheapest trust win in the flow.",
+  notes:["<b>Porter's real policy is printed inline</b> under &lsquo;I&rsquo;ll load it myself&rsquo;: under 50 kg, ground floor only. That rule exists today and is invisible at the point of decision. Surfacing it is the cheapest trust win in the flow.",
    "<b>Floor and lift sit immediately after the labour choice</b>, because they are the variables that make that choice wrong. Asking them together is the whole mechanism.",
    "<b>Prices are on the options, not after selection.</b> Hiding the helper price until later would recreate the exact surprise this feature removes."],
   evid:"&ldquo;Our society had a rule that you can&rsquo;t shift after six but because of them we were late &hellip; they will most likely ask you more than the amount shown on app during booking&rdquo;<span>V0000000, Quora, Pune</span>"},
@@ -309,7 +309,7 @@ const SCREENS=[
   notes:["<b>The quote is binding because the load was declared.</b> That conditionality is stated in one line - it is what makes the promise keepable, and what stops it being gamed.",
    "<b>Override to a vehicle that will not fit and the price is withdrawn</b>, not quoted. Try it from screen 6.",
    "<b>&lsquo;What happens next&rsquo; is on the confirm screen</b>, not buried in help. Uber's own A/B found explaining each granular wait step cut post-request cancellations 11%.",
-   "<b>The 60-minute loading clock is explained before it starts</b>, with the overrun rate shown."],
+   "<b>The loading clock is explained before it starts</b> - the free window is per vehicle (90 minutes on a Tata 407, bundled into the base fare), with the overrun rate shown."],
   evid:"&ldquo;The fare was agreed at Rs.1,100, but I was charged Rs.1,620 without a clear explanation.&rdquo;<span>Md sahil Sahil, Google Play, 28 Aug 2026</span>"},
  {id:8,t:"Your trip",kind:"exist",name:"Live tracking",sub:"Existing screen, two additions.",
   notes:["<b>Registration-number match</b> is surfaced as a badge. Users asked for this by name.",
@@ -454,7 +454,7 @@ function screen(){
         : `&#10003; <b>${rs(total())} is what you pay.</b> Fixed for the ${items()} you listed &mdash; no recalculation after the trip unless you add a stop or items on the day.`}</div>
       <div class="next"><b style="font-size:12px">What happens next</b><ol>
         <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
-        <li>${S.lab==="self"?"You load the vehicle yourself. The driver helps with items under 50 kg, up to 25 m, ground floor only."
+        <li>${S.lab==="self"?"You load the vehicle yourself. The driver helps with items under 50 kg, ground floor only."
           :l.n.replace("+","")+" arrive with the vehicle and carry everything, including the stairs."}</li>
         <li>Loading is free for ${v.mins} minutes on a ${v.n} - Porter bundles the time into the base fare. After that, a per-minute charge applies and the app shows a live countdown.</li>
         <li>At drop you share a 4-digit OTP. The trip only closes once you do.</li></ol></div>`;
