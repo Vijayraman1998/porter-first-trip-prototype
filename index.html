@@ -425,7 +425,7 @@ function screen(){
     f.innerHTML=`<button class="cta" data-go="6">See my vehicle</button>`;
   } else if(S.i===6){
     b.innerHTML=`<div class="rec"><div class="top">
-        <div><div class="veh">${v.n}</div><div class="sub">${nofit()?"Largest in the fleet - and this load will not fit in one trip":v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
+        <div><div class="veh">${v.n}</div><div class="sub">${!d?"Nothing declared yet":nofit()?"Largest in the fleet - and this load will not fit in one trip":v.n===a.n?"Recommended for your load":"You chose this - we suggested "+a.n}</div></div>
         <div class="pill ${!d||over||util>88?"no":"ok"}">${d?fit:"Nothing to size yet"}</div></div>
         <div class="why">${d?`Your <b>${items()}</b> come to about <b>${d} cu ft</b>, or <b>${n} cu ft</b> once packed
           with the gaps real loading leaves.
@@ -459,7 +459,7 @@ function screen(){
       <div class="next"><b style="font-size:12px">What happens next</b><ol>
         <li>A driver is assigned. You&rsquo;ll see the vehicle number &mdash; check it matches on arrival.</li>
         <li>${S.lab==="self"?"You load the vehicle yourself. The driver helps with items under 50 kg, ground floor only."
-          :l.n.replace("+","")+" arrive with the vehicle and carry everything, including the stairs."}</li>
+          :l.n.replace("+","")+(S.lab==="h1"?" arrives":" arrive")+" with the vehicle and "+(S.lab==="h1"?"carries":"carry")+" everything, including the stairs."}</li>
         <li>Loading is free for ${v.mins} minutes on a ${v.n} - Porter bundles the time into the base fare. After that, a per-minute charge applies and the app shows a live countdown.</li>
         <li>At drop you share a 4-digit OTP. The trip only closes once you do.</li></ol></div>`;
     f.innerHTML=(!d||over)
